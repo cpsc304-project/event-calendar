@@ -1,12 +1,15 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import { withAxiom } from "next-axiom";
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const baseConfig = {
   reactStrictMode: true,
 };
 
+const withAxiomConfig = withAxiom(baseConfig);
+
 export default withSentryConfig(
-  nextConfig,
+  withAxiomConfig,
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options
