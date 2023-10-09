@@ -1,0 +1,9 @@
+{
+	"[javascript][javascriptreact][typescript][typescriptreact][html][css][scss][tailwindcss][json][jsonc]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.insertSpaces": false,
+		"editor.tabSize": 2,
+		"editor.detectIndentation": false
+	},
+	"typescript.tsdk": "node_modules/typescript/lib"
+}
