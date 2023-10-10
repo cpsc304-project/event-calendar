@@ -4,6 +4,9 @@ import { withAxiom } from "next-axiom";
 /** @type {import('next').NextConfig} */
 const baseConfig = {
 	reactStrictMode: true,
+	experimental: {
+		serverActions: true,
+	},
 };
 
 const withAxiomConfig = withAxiom(baseConfig);
