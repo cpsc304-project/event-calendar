@@ -1,3 +1,4 @@
+import Link from "next/link";
 import LogButton from "./log-example";
 
 export default async function Home() {
@@ -5,6 +6,8 @@ export default async function Home() {
 		<main className="flex min-h-screen flex-col items-center justify-center gap-4">
 			<h1 className="text-3xl font-bold">Event Planner</h1>
 			<LogButton />
+			<Link href="/dashboard">Go to dashboard</Link>
+			<Link href="/profile">Go to profile</Link>
 		</main>
 	);
 }
