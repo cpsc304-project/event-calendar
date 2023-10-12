@@ -13,12 +13,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		// TODO: ClerkProvider should only wrap pages that need authentication
-		<ClerkProvider>
-			<html lang="en">
-				<AxiomWebVitals />
-				<body className={inter.className}>{children}</body>
-			</html>
-		</ClerkProvider>
+		<html lang="en">
+			<AxiomWebVitals />
+			<body className={inter.className}>{children}</body>
+		</html>
 	);
 }

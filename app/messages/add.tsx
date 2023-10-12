@@ -1,5 +1,3 @@
-"use client";
-
 import { addMessage } from "@/actions/messages";
 import SubmitButton from "./submit";
 import { useRef } from "react";
