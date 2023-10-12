@@ -7,7 +7,7 @@ export default async function Home() {
 			<h1 className="text-3xl font-bold">Event Calendar</h1>
 			<LogButton />
 			<Link href="/dashboard">Go to dashboard</Link>
-			<Link href="/profile">Go to profile</Link>
+			<Link href="/messages">Go to messages</Link>
 		</main>
 	);
 }

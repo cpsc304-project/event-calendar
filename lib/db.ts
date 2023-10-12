@@ -1,4 +1,5 @@
 import postgres from "postgres";
+import "server-only";
 
 const url = process.env.DATABASE_URL;
 
