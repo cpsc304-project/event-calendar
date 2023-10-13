@@ -16,9 +16,12 @@ interface Props {
 export default function List({ messages }: Props) {
 	return (
 		<div className="mx-auto my-8 flex flex-col gap-4">
-			{messages.toReversed().map((message) => (
-				<MessageView key={message.id} message={message} />
-			))}
+			{messages
+				.slice()
+				.reverse()
+				.map((message) => (
+					<MessageView key={message.id} message={message} />
+				))}
 		</div>
 	);
 }
