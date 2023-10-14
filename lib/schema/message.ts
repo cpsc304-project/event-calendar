@@ -1,13 +1,13 @@
-import { z } from "zod";
+import { int, mysqlTable, text } from "drizzle-orm/mysql-core";
 import { zfd } from "zod-form-data";
 
-export const Message = z.object({
-	id: z.number(),
-	title: z.string(),
-	content: z.string(),
+export const messages = mysqlTable("messages", {
+	id: int("id").primaryKey().autoincrement(),
+	title: text("title").notNull(),
+	content: text("content").notNull(),
 });
 
-export type Message = z.infer<typeof Message>;
+export type Message = typeof messages.$inferSelect;
 
 export const MessageForm = zfd.formData({
 	title: zfd.text(),

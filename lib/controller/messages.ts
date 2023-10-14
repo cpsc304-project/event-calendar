@@ -1,36 +1,30 @@
-import sql from "../db";
-import { unstable_cache } from "next/cache";
+import db, { withFetchOptions } from "../db";
 import { Message } from "../schema/message";
+import { sql } from "drizzle-orm";
 
 export const add = async (fields: Omit<Message, "id">): Promise<Message> => {
-	const [message] = await sql<[Message?]>`
+	const result = await db.execute(sql`
 		INSERT INTO messages
 			(title, content)
 		VALUES
 			(${fields.title}, ${fields.content})
-		RETURNING
-			id, title, content
-	`;
+	`);
 
-	if (!message) {
-		throw new Error("Failed to add a message");
-	}
-
-	return message;
+	return {
+		...fields,
+		id: +result.insertId,
+	};
 };
 
-export const getAll = unstable_cache(
+export const getAll = withFetchOptions(
 	async (): Promise<Message[]> => {
-		const messages = await sql<Message[]>`
-		SELECT
-			id, title, content
-		FROM messages
-	`;
+		const result = await db.execute(sql`
+			SELECT
+				id, title, content
+			FROM messages
+		`);
 
-		return messages;
+		return result.rows as Message[];
 	},
-	["all-messages"],
-	{
-		tags: ["all-messages"],
-	},
+	{ cache: "force-cache", next: { tags: ["all-messages"] } },
 );

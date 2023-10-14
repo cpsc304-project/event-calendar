@@ -1,17 +1,29 @@
-import { SignOutButton, UserButton, currentUser } from "@clerk/nextjs";
+import { ClerkLoaded, ClerkLoading, SignOutButton, currentUser } from "@clerk/nextjs";
 import Link from "next/link";
+
+const CustomSignOutButton = () => (
+	<>
+		<ClerkLoading>
+			<button key="sign-out">Sign out pls</button>
+		</ClerkLoading>
+		<ClerkLoaded>
+			<SignOutButton>
+				<button key="sign-out">Sign out pls</button>
+			</SignOutButton>
+		</ClerkLoaded>
+	</>
+);
 
 export default async function Page() {
 	const user = await currentUser();
 
-	if (!user) throw new Error("Expected user to be signed in.");
+	if (!user) return null;
 
 	return (
 		<div>
 			<Link href="/">Go home</Link>
-			<UserButton />
 			<h1>Hi {user.firstName}!</h1>
-			<SignOutButton />
+			<CustomSignOutButton />
 		</div>
 	);
 }

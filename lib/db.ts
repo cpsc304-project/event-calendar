@@ -1,12 +1,26 @@
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/planetscale-serverless";
+import { connect } from "@planetscale/database";
 import "server-only";
 
-const url = process.env.DATABASE_URL;
+let databaseFetchOverrides: RequestInit = {};
 
-if (!url) {
-	throw new Error("Missing DATABASE_URL in environment variables");
-}
+const connection = connect({
+	fetch: async (input, init) => fetch(input, { ...init, ...databaseFetchOverrides }),
+	host: process.env.PLANETSCALE_DB_HOST,
+	username: process.env.PLANETSCALE_DB_USERNAME,
+	password: process.env.PLANETSCALE_DB_PASSWORD,
+});
 
-const sql = postgres(url, {});
+const db = drizzle(connection);
 
-export default sql;
+export const withFetchOptions =
+	<T>(execute: () => Promise<T>, overrides: RequestInit) =>
+	async (): Promise<T> => {
+		const previous = databaseFetchOverrides;
+		databaseFetchOverrides = overrides;
+		const result = await execute();
+		databaseFetchOverrides = previous;
+		return result;
+	};
+
+export default db;

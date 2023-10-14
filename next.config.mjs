@@ -6,7 +6,6 @@ export default async function Config(phase, { defaultConfig }) {
 		reactStrictMode: true,
 		experimental: {
 			serverActions: true,
-			typedRoutes: true,
 		},
 	};
 
