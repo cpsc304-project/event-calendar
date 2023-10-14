@@ -11,6 +11,8 @@ const connection = connect({
 	password: process.env.PLANETSCALE_DB_PASSWORD,
 });
 
+void connection.execute("SET @@boost_cached_queries = true");
+
 const db = drizzle(connection);
 
 export const withFetchOptions =
