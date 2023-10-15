@@ -14,7 +14,7 @@ export default function LogButton() {
 	};
 
 	return (
-		<button className="rounded bg-slate-600 px-4 py-2" onClick={onClick}>
+		<button className="rounded bg-slate-600 px-4 py-2 text-white" onClick={onClick}>
 			Click me to log some stuff
 		</button>
 	);

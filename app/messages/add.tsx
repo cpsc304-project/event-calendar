@@ -14,28 +14,18 @@ export default function Add({ onAdd }: Props) {
 			ref={form}
 			action={async (formData) => {
 				onAdd(formData);
-				await addMessage(formData);
 				form.current?.reset();
+				await addMessage(formData);
 			}}
 			className="space-y-4 rounded bg-slate-600 p-4"
 		>
 			<label>
 				Title
-				<input
-					type="text"
-					name="title"
-					required
-					className="w-full rounded bg-slate-800 p-1 text-white"
-				/>
+				<input type="text" name="title" required className="w-full rounded bg-slate-700 p-1" />
 			</label>
 			<label>
 				Content
-				<input
-					type="text"
-					name="content"
-					required
-					className="w-full rounded bg-slate-800 p-1 text-white"
-				/>
+				<input type="text" name="content" required className="w-full rounded bg-slate-700 p-1" />
 			</label>
 			<SubmitButton />
 		</form>

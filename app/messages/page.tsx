@@ -5,7 +5,7 @@ export default async function Page() {
 	const msgs = await messages.getAll();
 
 	return (
-		<div className="mx-auto my-8 max-w-lg space-y-8 px-8">
+		<div className="mx-auto my-8 max-w-lg space-y-8 px-8 text-white">
 			<Form messages={msgs} />
 		</div>
 	);

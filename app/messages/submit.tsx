@@ -10,7 +10,7 @@ export default function SubmitButton() {
 			type="submit"
 			value="Add"
 			disabled={pending}
-			className={`min-w-8 rounded px-8 py-2 ${pending ? "bg-slate-900" : "bg-slate-700"}`}
+			className={`min-w-8 rounded px-8 py-2 ${pending ? "bg-slate-700" : "bg-slate-500"}`}
 		/>
 	);
 }
