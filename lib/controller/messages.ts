@@ -1,14 +1,16 @@
-import db, { withFetchOptions } from "../db";
+import { db, dbCached } from "../db";
 import { Message } from "../schema/message";
-import { sql } from "drizzle-orm";
 
 export const add = async (fields: Omit<Message, "id">): Promise<Message> => {
-	const result = await db.execute(sql`
-		INSERT INTO messages
-			(title, content)
-		VALUES
-			(${fields.title}, ${fields.content})
-	`);
+	const result = await db.execute(
+		`
+			INSERT INTO messages
+				(title, content)
+			VALUES
+				(:title, :content)
+		`,
+		fields,
+	);
 
 	return {
 		...fields,
@@ -16,15 +18,16 @@ export const add = async (fields: Omit<Message, "id">): Promise<Message> => {
 	};
 };
 
-export const getAll = withFetchOptions(
-	async (): Promise<Message[]> => {
-		const result = await db.execute(sql`
+export const getAll = async (): Promise<Message[]> => {
+	const result = await dbCached.execute(
+		`
 			SELECT
 				id, title, content
 			FROM messages
-		`);
+		`,
+		null,
+		{ tags: ["all-messages"] },
+	);
 
-		return result.rows as Message[];
-	},
-	{ cache: "force-cache", next: { tags: ["all-messages"] } },
-);
+	return result.rows as Message[];
+};

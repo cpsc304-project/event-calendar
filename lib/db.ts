@@ -1,35 +1,42 @@
-import { drizzle } from "drizzle-orm/planetscale-serverless";
-import { connect } from "@planetscale/database";
+import { ExecutedQuery, Field, connect } from "@planetscale/database";
 import "server-only";
 
-let databaseFetchOverrides: RequestInit = {};
+let currentFetchTags: string[] | undefined = undefined;
 
-export const withFetchOptions =
-	<T>(execute: () => Promise<T>, overrides: RequestInit) =>
-	async (): Promise<T> => {
-		const previous = databaseFetchOverrides;
-		databaseFetchOverrides = overrides;
-		const result = await execute();
-		databaseFetchOverrides = previous;
-		return result;
-	};
-
-const connection = connect({
-	fetch: async (input, init) => fetch(input, { ...init, ...databaseFetchOverrides }),
+export const db = connect({
 	host: process.env.PLANETSCALE_DB_HOST,
 	username: process.env.PLANETSCALE_DB_USERNAME,
 	password: process.env.PLANETSCALE_DB_PASSWORD,
 });
 
-void withFetchOptions(
-	async () => {
-		await connection.execute("SET @@boost_cached_queries = true");
-	},
-	{
-		cache: "force-cache",
-	},
-);
+const cachedConn = connect({
+	fetch: async (input, init) =>
+		fetch(input, { ...init, cache: "force-cache", next: { tags: currentFetchTags } }),
+	host: process.env.PLANETSCALE_DB_HOST,
+	username: process.env.PLANETSCALE_DB_USERNAME,
+	password: process.env.PLANETSCALE_DB_PASSWORD,
+});
 
-const db = drizzle(connection);
+type ExecuteArgs = object | any[] | null;
+type Cast = (field: Field, value: string | null) => any;
+type ExecuteAs = "array" | "object";
+type ExecuteOptions = {
+	as?: ExecuteAs;
+	cast?: Cast;
+};
 
-export default db;
+export const dbCached = {
+	async execute(
+		query: string,
+		args?: ExecuteArgs,
+		options?: ExecuteOptions & { tags?: string[] | undefined },
+	): Promise<ExecutedQuery> {
+		const previousFetchTags = currentFetchTags;
+		currentFetchTags = options?.tags;
+		const result = await cachedConn.execute(query, args, options);
+		currentFetchTags = previousFetchTags;
+		return result;
+	},
+};
+
+void dbCached.execute("SET @@boost_cached_queries = true");

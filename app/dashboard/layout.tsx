@@ -1,9 +1,15 @@
-import { ClerkProvider, auth } from "@clerk/nextjs";
-
 export const runtime = "edge";
 
-export default function Layout(props: { loggedIn: React.ReactNode; loggedOut: React.ReactNode }) {
-	const { userId } = auth();
+interface Props {
+	children: React.ReactNode;
+	toolbar: React.ReactNode;
+}
 
-	return <ClerkProvider>{userId ? props.loggedIn : props.loggedOut}</ClerkProvider>;
+export default function Layout({ children, toolbar }: Props) {
+	return (
+		<>
+			{toolbar}
+			<main className="mx-auto max-w-3xl p-4">{children}</main>
+		</>
+	);
 }

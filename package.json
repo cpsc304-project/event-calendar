@@ -9,10 +9,9 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
-		"@clerk/nextjs": "^4.25.3",
+		"@kinde-oss/kinde-auth-nextjs": "github:Arden144/kinde-auth-nextjs",
 		"@planetscale/database": "^1.11.0",
 		"@vercel/analytics": "^1.1.1",
-		"drizzle-orm": "^0.28.6",
 		"next": "^13.5.4",
 		"next-axiom": "^1.0.0",
 		"react": "^18",
