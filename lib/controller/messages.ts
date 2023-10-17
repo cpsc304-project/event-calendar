@@ -14,7 +14,7 @@ export const add = async (fields: Omit<Message, "id">): Promise<Message> => {
 
 	return {
 		...fields,
-		id: +result.insertId,
+		id: Number(result.insertId),
 	};
 };
 
@@ -48,8 +48,7 @@ export const getLatest = async (): Promise<Message | undefined> => {
 				messages
 			ORDER BY
 				id DESC
-			LIMIT
-				1
+			LIMIT 1
 		`,
 		null,
 		{ tags: ["latest-message"] },

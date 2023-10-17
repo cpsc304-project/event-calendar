@@ -1,10 +1,12 @@
 import { LoginLink, LogoutLink, getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import Link from "next/link";
 import Navigation from "./navigation";
+import { PropsWithChildren } from "react";
 
 const LoggedInToolbar = () => {
 	const { getUser } = getKindeServerSession();
 	const user = getUser();
+
 	return (
 		<>
 			<h1>Hi {user.given_name}!</h1>
@@ -17,13 +19,8 @@ const LoggedOutToolbar = () => <LoginLink>Sign in pls</LoginLink>;
 
 export const runtime = "edge";
 
-interface Props {
-	children: React.ReactNode;
-}
-
-export default function Layout(props: Props) {
+export default function Layout(props: PropsWithChildren) {
 	const { isAuthenticated } = getKindeServerSession();
-
 	const loggedIn = isAuthenticated();
 
 	return (

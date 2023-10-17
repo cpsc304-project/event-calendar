@@ -2,24 +2,17 @@
 
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
+import { PropsWithChildren } from "react";
 
-const NavLink = ({
-	children,
-	current,
-	href,
-}: {
-	children: React.ReactNode;
-	current?: boolean;
-	href: string;
-}) => {
+const NavLink = (props: PropsWithChildren<{ current?: boolean | undefined; href: string }>) => {
 	return (
-		<Link href={href}>
+		<Link href={props.href}>
 			<li
 				className={`relative cursor-pointer px-4 py-3 after:absolute after:inset-0 after:z-40 after:block after:border-b after:transition-colors ${
-					current ? "font-semibold after:border-blue-700" : "hover:after:border-gray-300"
+					props.current ? "font-semibold after:border-blue-700" : "hover:after:border-gray-300"
 				}`}
 			>
-				{children}
+				{props.children}
 			</li>
 		</Link>
 	);

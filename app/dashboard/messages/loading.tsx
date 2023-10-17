@@ -6,9 +6,6 @@ function PlaceholderMessage() {
 			<h4 className="relative after:absolute after:inset-1 after:block after:w-32 after:rounded after:bg-gray-100">
 				&nbsp;-
 			</h4>
-			<h5 className="relative after:absolute after:inset-1 after:block after:w-8 after:rounded after:bg-gray-100">
-				&nbsp;-
-			</h5>
 			<p className="relative after:absolute after:inset-1 after:block after:w-64 after:rounded after:bg-gray-100">
 				&nbsp;-
 			</p>

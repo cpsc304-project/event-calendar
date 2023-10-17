@@ -34,7 +34,7 @@ export default function Add({ onAddMessage, disabled }: Props) {
 				await addMessage(formData);
 			}}
 		>
-			<label htmlFor="title" className="mb-1 inline-block font-semibold">
+			<label htmlFor="title" className="mb-1 block font-semibold">
 				Title
 			</label>
 			<input
@@ -45,7 +45,7 @@ export default function Add({ onAddMessage, disabled }: Props) {
 				disabled={disabled}
 				className="mb-4 w-full rounded-md border bg-gray-50 p-1 shadow-inner"
 			/>
-			<label htmlFor="content" className="mb-1 inline-block font-semibold">
+			<label htmlFor="content" className="mb-1 block font-semibold">
 				Content
 			</label>
 			<textarea
