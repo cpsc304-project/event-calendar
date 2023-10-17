@@ -1,10 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { AxiomWebVitals } from "next-axiom";
-import { Inter } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
-const inter = Inter({ subsets: ["latin"] });
+const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<html lang="en">
 			<AxiomWebVitals />
-			<body className={inter.className}>
+			<body className={montserrat.className}>
 				{children}
 				<Analytics />
 			</body>

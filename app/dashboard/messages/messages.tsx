@@ -1,7 +1,7 @@
 "use client";
 
 import { experimental_useOptimistic as useOptimistic } from "react";
-import Add from "./add";
+import Form from "./form";
 import List from "./list";
 import { getNextId } from "@/lib/helpers";
 import { Message, MessageForm } from "@/lib/schema/message";
@@ -10,23 +10,23 @@ interface Props {
 	messages: Message[];
 }
 
-export default function Form({ messages }: Props) {
-	const [msgs, addMsg] = useOptimistic(
-		messages.map((message) => ({ ...message, optimistic: false })),
+export default function Messages(props: Props) {
+	const [messages, addOptimisticMessage] = useOptimistic(
+		props.messages.map((message) => ({ ...message, optimistic: false })),
 		(rest, formData: FormData) => [
-			...rest,
 			{
 				...MessageForm.parse(formData),
 				id: getNextId(rest),
 				optimistic: true,
 			},
+			...rest,
 		],
 	);
 
 	return (
-		<>
-			<Add onAdd={addMsg} />
-			<List messages={msgs} />
-		</>
+		<div className="space-y-4">
+			<Form onAddMessage={addOptimisticMessage} />
+			<List messages={messages} />
+		</div>
 	);
 }
