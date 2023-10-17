@@ -9,9 +9,9 @@ const GridItem = ({ children, className, ...props }: ComponentProps<"div">) => (
 export default function Page() {
 	return (
 		<div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-			{Array.from({ length: 9 }).map((i) => (
+			{[...Array(9)].map((_, i) => (
 				<GridItem key={`grid-item-${i}`}>
-					<h2 className="border-b bg-gray-50 p-4">Messages</h2>
+					<h2 className="border-b bg-gray-50 p-4">Post Name</h2>
 					<div className="p-4">
 						<p>
 							Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sed, soluta a, fugit

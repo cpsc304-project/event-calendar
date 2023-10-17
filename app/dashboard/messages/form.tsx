@@ -4,14 +4,14 @@ import { addMessage } from "./action";
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { useRef } from "react";
 
-function SubmitButton() {
+function SubmitButton({ disabled }: { disabled?: boolean | undefined }) {
 	const { pending } = useFormStatus();
 
 	return (
 		<input
 			type="submit"
 			value="Add"
-			disabled={pending}
+			disabled={pending || disabled}
 			className="mb-4 cursor-pointer rounded-md bg-gray-800 px-6 py-1 font-semibold text-white hover:bg-gray-900"
 		/>
 	);
@@ -19,9 +19,10 @@ function SubmitButton() {
 
 interface Props {
 	onAddMessage?: (formData: FormData) => void;
+	disabled?: boolean | undefined;
 }
 
-export default function Add({ onAddMessage }: Props) {
+export default function Add({ onAddMessage, disabled }: Props) {
 	const form = useRef<HTMLFormElement>(null);
 
 	return (
@@ -41,6 +42,7 @@ export default function Add({ onAddMessage }: Props) {
 				id="title"
 				name="title"
 				required
+				disabled={disabled}
 				className="mb-4 w-full rounded-md border bg-gray-50 p-1 shadow-inner"
 			/>
 			<label htmlFor="content" className="mb-1 inline-block font-semibold">
@@ -50,9 +52,10 @@ export default function Add({ onAddMessage }: Props) {
 				id="content"
 				name="content"
 				required
+				disabled={disabled}
 				className="mb-4 h-24 w-full resize-none rounded-md border bg-gray-50 p-1 shadow-inner"
 			/>
-			<SubmitButton />
+			<SubmitButton disabled={disabled} />
 		</form>
 	);
 }

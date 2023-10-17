@@ -15,7 +15,7 @@ const NavLink = ({
 	return (
 		<Link href={href}>
 			<li
-				className={`relative cursor-pointer px-4 py-3 after:absolute after:inset-x-0 after:bottom-0 after:z-40 after:block after:border-b after:transition-colors ${
+				className={`relative cursor-pointer px-4 py-3 after:absolute after:inset-0 after:z-40 after:block after:border-b after:transition-colors ${
 					current ? "font-semibold after:border-blue-700" : "hover:after:border-gray-300"
 				}`}
 			>
