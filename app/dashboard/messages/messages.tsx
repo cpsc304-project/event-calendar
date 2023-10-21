@@ -17,15 +17,12 @@ const messagesReducer = (rest: PotentialMessage[], formData: FormData) => [
 ];
 
 export default function Messages(props: { sentMessages: PotentialMessage[] }) {
-	const [optimisticMessages, addOptimisticMessage] = useOptimistic(
-		props.sentMessages,
-		messagesReducer,
-	);
+	const [messages, addMessage] = useOptimistic(props.sentMessages, messagesReducer);
 
 	return (
 		<div className="space-y-4">
-			<Form onAddMessage={addOptimisticMessage} />
-			<List messages={optimisticMessages} />
+			<Form onSubmit={addMessage} />
+			<List messages={messages} />
 		</div>
 	);
 }

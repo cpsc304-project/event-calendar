@@ -1,10 +1,7 @@
 import { db } from "../db";
 import { Message } from "../schema/message";
 
-export const add = async ({
-	title,
-	content,
-}: Omit<Message, "id">): Promise<Message | undefined> => {
+export const add = async ({ title, content }: Omit<Message, "id">): Promise<Message> => {
 	const [message] = await db.sql<[Message?]>`
 		INSERT INTO messages
 			(title, content)
@@ -15,6 +12,10 @@ export const add = async ({
 			title,
 			content
 	`;
+
+	if (!message) {
+		throw new Error("Failed to insert message, no message returned.");
+	}
 
 	return message;
 };

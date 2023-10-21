@@ -1,7 +1,10 @@
 "use client";
 
-import { addMessage } from "./action";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { AddMessageState, addMessage } from "./action";
+import {
+	experimental_useFormState as useFormState,
+	experimental_useFormStatus as useFormStatus,
+} from "react-dom";
 import { useRef } from "react";
 
 function SubmitButton({ disabled }: { disabled?: boolean | undefined }) {
@@ -12,28 +15,31 @@ function SubmitButton({ disabled }: { disabled?: boolean | undefined }) {
 			type="submit"
 			value="Add"
 			disabled={pending || disabled}
-			className="mb-4 cursor-pointer rounded-md bg-gray-800 px-6 py-1 font-semibold text-white hover:bg-gray-900"
+			className="cursor-pointer rounded-md bg-gray-800 px-6 py-1 font-semibold text-white hover:bg-gray-900"
 		/>
 	);
 }
 
 interface Props {
-	onAddMessage?: (formData: FormData) => void;
+	onSubmit?: (formData: FormData) => void;
 	disabled?: boolean | undefined;
 }
 
-export default function Add({ onAddMessage, disabled }: Props) {
-	const form = useRef<HTMLFormElement>(null);
+const initialState: AddMessageState = { state: "ready" };
+
+export default function Add({ onSubmit, disabled }: Props) {
+	const formRef = useRef<HTMLFormElement>(null);
+
+	async function action(_state: AddMessageState, formData: FormData): Promise<AddMessageState> {
+		onSubmit?.(formData);
+		formRef.current?.reset();
+		return addMessage(formData);
+	}
+
+	const [state, formAction] = useFormState(action, initialState);
 
 	return (
-		<form
-			ref={form}
-			action={async (formData) => {
-				onAddMessage?.(formData);
-				form.current?.reset();
-				await addMessage(formData);
-			}}
-		>
+		<form ref={formRef} action={formAction}>
 			<label htmlFor="title" className="mb-1 block font-semibold">
 				Title
 			</label>
@@ -55,7 +61,10 @@ export default function Add({ onAddMessage, disabled }: Props) {
 				disabled={disabled}
 				className="mb-4 h-24 w-full resize-none rounded-md border bg-gray-50 p-1 shadow-inner"
 			/>
-			<SubmitButton disabled={disabled} />
+			<span className="flex items-center gap-4">
+				<SubmitButton disabled={disabled} />
+				{state.state === "error" && <p className="text-red-500">{state.error}</p>}
+			</span>
 		</form>
 	);
 }
