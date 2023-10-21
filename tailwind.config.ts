@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import containerQueries from "@tailwindcss/container-queries";
+import { withUt } from "uploadthing/tw";
 
 const config: Config = {
 	content: [
@@ -9,4 +10,5 @@ const config: Config = {
 	],
 	plugins: [containerQueries],
 };
-export default config;
+
+export default withUt(config);

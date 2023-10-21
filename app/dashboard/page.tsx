@@ -1,7 +1,8 @@
 import { ComponentProps } from "react";
+import { twMerge } from "tailwind-merge";
 
 const GridItem = ({ children, className, ...props }: ComponentProps<"div">) => (
-	<div className={`overflow-hidden rounded-md border ${className}`} {...props}>
+	<div className={twMerge("overflow-hidden rounded-md border", className)} {...props}>
 		{children}
 	</div>
 );

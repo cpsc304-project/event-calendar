@@ -3,9 +3,7 @@ import { PotentialMessage } from "@/lib/schema/message";
 function MessageCard({ message }: { message: PotentialMessage }) {
 	return (
 		<div
-			className={`rounded-md border p-4 transition-colors ${
-				message.optimistic ? "bg-blue-50" : ""
-			}`}
+			className={`rounded-md border p-4 transition-colors ${message.optimistic && "bg-blue-50"}`}
 		>
 			<h4 className="font-bold">{message.title}</h4>
 			<p>{message.content}</p>

@@ -9,7 +9,7 @@ const NavLink = (props: PropsWithChildren<{ current?: boolean | undefined; href:
 		<Link href={props.href}>
 			<li
 				className={`relative cursor-pointer px-4 py-3 after:absolute after:inset-0 after:z-40 after:block after:border-b after:transition-colors ${
-					props.current ? "font-semibold after:border-blue-700" : "hover:after:border-gray-300"
+					props.current ? "font-semibold after:border-blue-700" : "hover:after:border-gray-400"
 				}`}
 			>
 				{props.children}
@@ -23,7 +23,7 @@ export default function Navigation() {
 
 	return (
 		<nav>
-			<ul className="flex overflow-x-auto overflow-y-hidden">
+			<ul role="list" className="flex overflow-x-auto overflow-y-hidden">
 				<NavLink href="/">Home</NavLink>
 				<NavLink current={selected === null} href="/dashboard">
 					Dashboard

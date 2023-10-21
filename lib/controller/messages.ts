@@ -1,26 +1,28 @@
 import { db } from "../db";
 import { Message } from "../schema/message";
 
-export const add = async (fields: Omit<Message, "id">): Promise<Message> => {
-	const result = await db.execute(
-		`
-			INSERT INTO messages
-				(title, content)
-			VALUES
-				(:title, :content)
-		`,
-		fields,
-	);
+export const add = async ({
+	title,
+	content,
+}: Omit<Message, "id">): Promise<Message | undefined> => {
+	const [message] = await db.sql<[Message?]>`
+		INSERT INTO messages
+			(title, content)
+		VALUES
+			(${title}, ${content})
+		RETURNING
+			id,
+			title,
+			content
+	`;
 
-	return {
-		...fields,
-		id: Number(result.insertId),
-	};
+	return message;
 };
 
 export const getAll = async (): Promise<Message[]> => {
-	const result = await db.executeCached(
-		`
+	const messages = await db.cached(
+		"all-messages",
+		db.sql<Message[]>`
 			SELECT
 				id,
 				title,
@@ -30,16 +32,15 @@ export const getAll = async (): Promise<Message[]> => {
 			ORDER BY
 				id DESC
 		`,
-		null,
-		{ tags: ["all-messages"] },
 	);
 
-	return result.rows as Message[];
+	return messages;
 };
 
 export const getLatest = async (): Promise<Message | undefined> => {
-	const result = await db.executeCached(
-		`
+	const [message] = await db.cached(
+		"latest-message",
+		db.sql<[Message?]>`
 			SELECT
 				id,
 				title,
@@ -50,11 +51,7 @@ export const getLatest = async (): Promise<Message | undefined> => {
 				id DESC
 			LIMIT 1
 		`,
-		null,
-		{ tags: ["latest-message"] },
 	);
-
-	const [message] = result.rows as [Message?];
 
 	return message;
 };

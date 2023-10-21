@@ -1,3 +1,9 @@
+import { UploadDropzone } from "@/lib/components/uploadthing";
+
 export default function Page() {
-	return <h2>Hello</h2>;
+	return (
+		<div>
+			<UploadDropzone endpoint="imageUploader" />
+		</div>
+	);
 }

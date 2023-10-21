@@ -1,49 +1,42 @@
-import { ExecutedQuery, Field, connect } from "@planetscale/database";
+import { neon, neonConfig, NeonQueryPromise } from "@neondatabase/serverless";
+import { messages, files, users } from "./controller";
 import "server-only";
-import { messages } from "./controller";
 
-const connection = connect({
-	host: process.env.PLANETSCALE_DB_HOST,
-	username: process.env.PLANETSCALE_DB_USERNAME,
-	password: process.env.PLANETSCALE_DB_PASSWORD,
-});
+if (!process.env.DATABASE_URL) {
+	throw new Error("Missing DATABASE_URL in environment");
+}
 
-let currentFetchTags: string[] | undefined = undefined;
-
-const cachedConnection = connect({
-	fetch: async (input, init) =>
-		fetch(input, { ...init, cache: "force-cache", next: { tags: currentFetchTags } }),
-	host: process.env.PLANETSCALE_DB_HOST,
-	username: process.env.PLANETSCALE_DB_USERNAME,
-	password: process.env.PLANETSCALE_DB_PASSWORD,
-});
-
-type ExecuteArgs = object | any[] | null;
-type Cast = (field: Field, value: string | null) => any;
-type ExecuteAs = "array" | "object";
-type ExecuteOptions = {
-	as?: ExecuteAs;
-	cast?: Cast;
+const fetchOptions: Required<Pick<RequestInit, "cache" | "next">> = {
+	cache: "no-store",
+	next: {},
 };
 
-const executeCached = async (
-	query: string,
-	args?: ExecuteArgs,
-	options?: ExecuteOptions & { tags?: string[] | undefined },
-): Promise<ExecutedQuery> => {
-	const previousFetchTags = currentFetchTags;
-	currentFetchTags = options?.tags;
-	const result = await cachedConnection.execute(query, args, options);
-	currentFetchTags = previousFetchTags;
+const sqlUntyped = neon(process.env.DATABASE_URL, { fetchOptions });
+
+const sql = <T extends unknown[]>(
+	strings: TemplateStringsArray,
+	...params: any[]
+): NeonQueryPromise<false, false, T> =>
+	sqlUntyped(strings, ...params) as NeonQueryPromise<false, false, T>;
+
+const cached = async <ArrayMode extends boolean, FullResults extends boolean, T>(
+	tag: string,
+	query: NeonQueryPromise<ArrayMode, FullResults, T>,
+): Promise<T> => {
+	const previousCache = fetchOptions.cache;
+	const previousTags = fetchOptions.next.tags;
+	fetchOptions.cache = "force-cache";
+	fetchOptions.next.tags = [tag];
+	const result = await query;
+	fetchOptions.cache = previousCache;
+	fetchOptions.next.tags = previousTags;
 	return result;
 };
 
 export const db = {
-	execute: connection.execute.bind(connection),
-	transaction: connection.transaction.bind(connection),
-	refresh: connection.refresh.bind(connection),
-	executeCached,
+	sql,
+	cached,
 	messages,
+	files,
+	users,
 };
-
-void db.executeCached("SET @@boost_cached_queries = true");
