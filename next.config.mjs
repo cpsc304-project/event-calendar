@@ -4,6 +4,15 @@ export default async function Config(phase, { defaultConfig }) {
 	/** @type {import('next').NextConfig} */
 	const baseConfig = {
 		reactStrictMode: true,
+		images: {
+			remotePatterns: [
+				{
+					protocol: "https",
+					hostname: "utfs.io",
+					port: "",
+				},
+			],
+		},
 		experimental: {
 			serverActions: true,
 		},

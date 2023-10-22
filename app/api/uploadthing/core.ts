@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Logger } from "next-axiom";
+import { revalidateTag } from "next/cache";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 const f = createUploadthing();
@@ -41,8 +42,12 @@ export const ourFileRouter = {
 				fileUrl: file.url,
 			});
 
+			const dbFile = await db.files.add({ url: file.url, userId: metadata.userId });
+			logger.debug("Image added", { fileId: dbFile.id });
+
+			revalidateTag("all-files");
+
 			void logger.flush();
-			await db.files.add({ url: file.url, userId: metadata.userId });
 		}),
 } satisfies FileRouter;
 
