@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 interface Props {
 	list: ReactNode;
-	modal?: ReactNode | undefined;
+	modal: ReactNode;
 }
 
 export default function Layout(props: Props) {
