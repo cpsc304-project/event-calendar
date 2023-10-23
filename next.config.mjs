@@ -11,6 +11,11 @@ export default async function Config(phase, { defaultConfig }) {
 					hostname: "utfs.io",
 					port: "",
 				},
+				{
+					protocol: "https",
+					hostname: "uploadthing.com",
+					port: "",
+				},
 			],
 		},
 		experimental: {
