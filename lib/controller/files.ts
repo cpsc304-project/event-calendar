@@ -20,6 +20,24 @@ export const add = async ({ url, userId }: Omit<File, "id">): Promise<File> => {
 	return file;
 };
 
+export const get = async (id: number): Promise<File | undefined> => {
+	const [file] = await db.cached(
+		`file-${id}`,
+		db.sql<[File?]>`
+			SELECT
+				id,
+				url,
+				user_id as userId
+			FROM
+				files
+			WHERE
+				id = ${id}
+		`,
+	);
+
+	return file;
+};
+
 export const getAll = async (): Promise<File[]> => {
 	const files = await db.cached(
 		"all-files",

@@ -25,7 +25,7 @@ export default function Layout(props: PropsWithChildren) {
 
 	return (
 		<>
-			<header className="relative space-y-6 px-6 pt-6 after:pointer-events-none after:absolute after:inset-0 after:z-30 after:block after:border-b sm:px-12">
+			<header className="relative space-y-6 px-6 pt-6 after:pointer-events-none after:absolute after:inset-0 after:z-10 after:block after:border-b sm:px-12">
 				<div className="flex items-center justify-between">
 					<Link href="/">
 						<h2>Insert Logo Here</h2>

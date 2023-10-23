@@ -8,7 +8,7 @@ const NavLink = (props: PropsWithChildren<{ current?: boolean | undefined; href:
 	return (
 		<Link href={props.href}>
 			<li
-				className={`relative cursor-pointer px-4 py-3 after:absolute after:inset-0 after:z-40 after:block after:border-b after:transition-colors ${
+				className={`relative cursor-pointer px-4 py-3 after:absolute after:inset-0 after:z-20 after:block after:border-b after:transition-colors ${
 					props.current ? "font-semibold after:border-blue-700" : "hover:after:border-gray-400"
 				}`}
 			>
@@ -31,8 +31,8 @@ export default function Navigation() {
 				<NavLink current={selected === "messages"} href="/dashboard/messages">
 					Messages
 				</NavLink>
-				<NavLink current={selected === "something"} href="/dashboard/something">
-					Something
+				<NavLink current={selected === "photos"} href="/dashboard/photos">
+					Photos
 				</NavLink>
 			</ul>
 		</nav>
