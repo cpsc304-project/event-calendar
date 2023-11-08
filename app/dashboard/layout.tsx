@@ -1,11 +1,12 @@
-import { LoginLink, LogoutLink, getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { LoginLink, LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import Link from "next/link";
 import Navigation from "./navigation";
 import { PropsWithChildren } from "react";
 
-const LoggedInToolbar = () => {
+const LoggedInToolbar = async () => {
 	const { getUser } = getKindeServerSession();
-	const user = getUser();
+	const user = await getUser();
 
 	return (
 		<>
@@ -19,9 +20,9 @@ const LoggedOutToolbar = () => <LoginLink>Sign in pls</LoginLink>;
 
 export const runtime = "edge";
 
-export default function Layout(props: PropsWithChildren) {
+export default async function Layout(props: PropsWithChildren) {
 	const { isAuthenticated } = getKindeServerSession();
-	const loggedIn = isAuthenticated();
+	const loggedIn = await isAuthenticated();
 
 	return (
 		<>

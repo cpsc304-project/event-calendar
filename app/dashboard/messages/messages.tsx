@@ -1,6 +1,6 @@
 "use client";
 
-import { experimental_useOptimistic as useOptimistic } from "react";
+import { useOptimistic } from "react";
 import Form from "./form";
 import List from "./list";
 import { MessageForm, PotentialMessage } from "@/lib/schema/message";

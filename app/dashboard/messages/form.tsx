@@ -1,10 +1,7 @@
 "use client";
 
 import { AddMessageState, addMessage } from "./action";
-import {
-	experimental_useFormState as useFormState,
-	experimental_useFormStatus as useFormStatus,
-} from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 import { useRef } from "react";
 
 function SubmitButton({ disabled }: { disabled?: boolean | undefined }) {

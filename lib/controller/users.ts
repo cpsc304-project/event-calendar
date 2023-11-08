@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { User } from "../schema/user";
 
-export const getByKindeId = async (kindeId: string): Promise<User> => {
+export async function getByKindeId(kindeId: string): Promise<User> {
 	const [user] = await db.sql<[User?]>`
 		INSERT INTO users
 			(kinde_id)
@@ -20,4 +20,4 @@ export const getByKindeId = async (kindeId: string): Promise<User> => {
 	}
 
 	return user;
-};
+}

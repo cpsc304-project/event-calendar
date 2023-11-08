@@ -18,9 +18,6 @@ export default async function Config(phase, { defaultConfig }) {
 				},
 			],
 		},
-		experimental: {
-			serverActions: true,
-		},
 	};
 
 	const configWithAxiom = withAxiom(baseConfig);

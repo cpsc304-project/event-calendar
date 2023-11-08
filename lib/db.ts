@@ -1,4 +1,4 @@
-import { neon, neonConfig, NeonQueryPromise } from "@neondatabase/serverless";
+import { neon, NeonQueryPromise } from "@neondatabase/serverless";
 import { messages, files, users } from "./controller";
 import "server-only";
 

@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { File } from "../schema/file";
 
-export const add = async ({ url, userId }: Omit<File, "id">): Promise<File> => {
+export async function add({ url, userId }: Omit<File, "id">): Promise<File> {
 	const [file] = await db.sql<[File?]>`
 		INSERT INTO files
 			(url, user_id)
@@ -18,9 +18,9 @@ export const add = async ({ url, userId }: Omit<File, "id">): Promise<File> => {
 	}
 
 	return file;
-};
+}
 
-export const get = async (id: number): Promise<File | undefined> => {
+export async function get(id: number): Promise<File | undefined> {
 	const [file] = await db.cached(
 		`file-${id}`,
 		db.sql<[File?]>`
@@ -36,9 +36,9 @@ export const get = async (id: number): Promise<File | undefined> => {
 	);
 
 	return file;
-};
+}
 
-export const getAll = async (): Promise<File[]> => {
+export async function getAll(): Promise<File[]> {
 	const files = await db.cached(
 		"all-files",
 		db.sql<File[]>`
@@ -54,4 +54,4 @@ export const getAll = async (): Promise<File[]> => {
 	);
 
 	return files;
-};
+}
