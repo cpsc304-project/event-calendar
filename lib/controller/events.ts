@@ -1,8 +1,9 @@
 import { db } from "../db";
 import { Event } from "../schema/event";
 
-export const addEvent = async ({description, startDate, endDate, name, venue, organiser,
-category} : Omit<Event, "id"> ): Promise<Event> => {
+export async function addEvent({
+	description, startDate, endDate, name, venue, organiser,
+  category} : Omit<Event, "id"> ): Promise<Event> {
 
 	const [events] = await db.sql<[Event?]>`
 	INSERT INTO events
