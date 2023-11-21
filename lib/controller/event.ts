@@ -1,4 +1,3 @@
-import { date } from "zod";
 import { db } from "../db";
 import { Event } from "../schema/event";
 
