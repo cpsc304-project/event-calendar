@@ -1,20 +1,19 @@
-CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY NOT NULL,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL
+CREATE TABLE account (
+    account_id SERIAL PRIMARY KEY NOT NULL,
+    kinde_id CHAR(35) UNIQUE NOT NULL
 );
 
 CREATE TABLE organizer (
-    user_id SERIAL PRIMARY KEY NOT NULL
-        REFERENCES users(user_id)
+    account_id SERIAL PRIMARY KEY NOT NULL
+        REFERENCES account(account_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     organization_name TEXT
 );
 
 CREATE TABLE guest (
-    user_id SERIAL PRIMARY KEY NOT NULL
-        REFERENCES users(user_id)
+    account_id SERIAL PRIMARY KEY NOT NULL
+        REFERENCES account(account_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     is_ubc_student BOOLEAN NOT NULL
@@ -59,7 +58,7 @@ CREATE TABLE event (
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     organizer_id SERIAL NOT NULL
-        REFERENCES organizer(user_id)
+        REFERENCES organizer(account_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     venue_id SERIAL NOT NULL
@@ -91,8 +90,8 @@ CREATE TABLE ticket (
         REFERENCES event(event_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    user_id SERIAL
-        REFERENCES guest(user_id)
+    account_id SERIAL
+        REFERENCES guest(account_id)
         ON UPDATE CASCADE
         ON DELETE SET NULL,
     cost NUMERIC(20) NOT NULL,
@@ -115,8 +114,8 @@ CREATE TABLE review (
     review_id SERIAL PRIMARY KEY NOT NULL,
     rating NUMERIC(2) NOT NULL,
     comment VARCHAR(512),
-    user_id SERIAL NOT NULL
-        REFERENCES guest(user_id)
+    account_id SERIAL NOT NULL
+        REFERENCES guest(account_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     event_id SERIAL NOT NULL
