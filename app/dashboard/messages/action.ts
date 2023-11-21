@@ -30,7 +30,7 @@ export async function addMessage(formData: FormData): Promise<AddMessageState> {
 		const newMessage = MessageForm.parse(formData);
 
 		const message = await messages.add(newMessage);
-		logger.debug("Message added", { messageId: message.id });
+		logger.debug("Message added", { messageId: message.messageId });
 
 		revalidateTag("all-messages");
 
