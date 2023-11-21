@@ -11,6 +11,7 @@ export const addEvent = async ({
 	organiser,
 	category,
 }: Omit<Event, "id">): Promise<Event> => {
+<<<<<<< Updated upstream
 	const [events] = await db.sql<[Event?]>`
 	INSERT INTO events
 	  (description, startDate, endDate, name, venue, organiser, category)
@@ -33,4 +34,27 @@ export const addEvent = async ({
 	}
 
 	return events;
+=======
+	const [event] = await db.sql<[Event?]>`
+		INSERT INTO events
+			(description, startDate, endDate, name, venue, organiser, category)
+		VALUES
+			(${description}, ${startDate}, ${endDate}, ${name}, ${venue}, ${organiser}, ${category})
+		RETURNING
+			id,
+			description,
+			startDate,
+			endDate,
+			name,
+			venue,
+			organiser,
+			category
+	`;
+
+	if (!event) {
+		throw new Error("Failed to insert an event: no event returned.");
+	}
+
+	return event;
+>>>>>>> Stashed changes
 };
