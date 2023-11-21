@@ -5,7 +5,7 @@ export class Logger extends AxiomLogger {
 		super(initConfig);
 	}
 
-	async [Symbol.asyncDispose]() {
-		await this.flush();
+	[Symbol.dispose]() {
+		void this.flush();
 	}
 }

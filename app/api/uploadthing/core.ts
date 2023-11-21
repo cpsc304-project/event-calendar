@@ -9,7 +9,7 @@ const f = createUploadthing();
 export const ourFileRouter = {
 	imageUploader: f({ image: { maxFileSize: "4MB" } })
 		.middleware(async () => {
-			await using logger = new Logger();
+			using logger = new Logger();
 			logger.debug("Starting image upload");
 
 			const { getUser, isAuthenticated } = getKindeServerSession();
@@ -30,7 +30,7 @@ export const ourFileRouter = {
 			return { accountId: account.accountId };
 		})
 		.onUploadComplete(async ({ metadata, file }) => {
-			await using logger = new Logger();
+			using logger = new Logger();
 
 			logger.debug("Image upload completed", {
 				accountId: metadata.accountId,

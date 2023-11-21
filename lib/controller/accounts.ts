@@ -3,7 +3,7 @@ import { Logger } from "../logger";
 import { Account } from "../schema/accounts";
 
 export async function getByKindeId(kindeId: string): Promise<Account> {
-	await using logger = new Logger();
+	using logger = new Logger();
 
 	const [account] = await db.sql<[Account?]>`
 		INSERT INTO account

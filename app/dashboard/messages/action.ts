@@ -22,7 +22,7 @@ export interface AddMessageReady {
 export type AddMessageState = AddMessageSuccess | AddMessageError | AddMessageReady;
 
 export async function addMessage(formData: FormData): Promise<AddMessageState> {
-	await using logger = new Logger();
+	using logger = new Logger();
 
 	try {
 		logger.debug("Adding a new message");
