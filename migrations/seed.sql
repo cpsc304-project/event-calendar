@@ -7,6 +7,8 @@ VALUES
     (4, 'kp_61ff1da6b08646f68fc8b39b2b634104'),
     (5, 'kp_82d8fca74d1648de85e569a6d8d35325');
 
+SELECT setval('account_account_id_seq', 5);
+
 INSERT INTO
     organizer (account_id, organization_name)
 VALUES
@@ -52,6 +54,8 @@ VALUES
     (4, 'Downtown Theater', 'Intimate theater experience', 500, 'Theater', 'M5S2K5', 'Canada', 101, 'Theater Lane'),
     (5, 'UBC Field', 'Outdoor field for events', NULL, 'Outdoor', 'M5G2C4', 'Canada', 200, 'Park Avenue');
 
+SELECT setval('venue_venue_id_seq', 5);
+
 INSERT INTO
     event (event_id, name, description, start_date, end_date, organizer_id, venue_id)
 VALUES
@@ -60,6 +64,8 @@ VALUES
     (3, 'UBC Mens Ultimate Vs Waterloo', 'The big game', '2023-12-01', '2023-12-01', 3, 3),
     (4, 'UBC Theatre Hamlet', 'Drama and comedy', '2023-11-20', '2023-11-21', 4, 4),
     (5, 'UBC CVC picnic in the Park', 'Outdoor student event', '2023-09-05', '2023-09-05', 5, 5);
+
+SELECT setval('event_event_id_seq', 5);
 
 INSERT INTO
     category (category_name, description)
@@ -83,20 +89,20 @@ VALUES
 INSERT INTO
     ticket (ticket_id, event_id, account_id, cost)
 VALUES
-    (1, 1, 2, 4000),
-    (2, 2, 4, 15000),
-    (3, 3, 3, 7500),
-    (4, 4, 5, 5500),
-    (5, 5, 3, 1000);
+    ('dd4ac94d-45cc-4ca0-83ef-f660a10bed79', 1, 2, 4000),
+    ('3550a605-b645-4f05-8f6f-908888beecab', 2, 4, 15000),
+    ('4edcbfe2-86be-4ae2-9bb7-e39b7320f878', 3, 3, 7500),
+    ('3fb7a3d8-ec10-4397-80bf-94373bdbc43f', 4, 5, 5500),
+    ('d64e1cac-c079-4da3-8491-091811fbc0b3', 5, 3, 1000);
 
 INSERT INTO
     discounted_ticket (ticket_id, event_id, discount, promo_code)
 VALUES
-    (1, 1, 10, 'ROCK10'),
-    (2, 2, 20, 'TECH20'),
-    (3, 3, 15, 'SPORTS15'),
-    (4, 4, 5, 'THEATER5'),
-    (5, 5, 2, 'BACK2SCHOOL');
+    ('dd4ac94d-45cc-4ca0-83ef-f660a10bed79', 1, 10, 'ROCK10'),
+    ('3550a605-b645-4f05-8f6f-908888beecab', 2, 20, 'TECH20'),
+    ('4edcbfe2-86be-4ae2-9bb7-e39b7320f878', 3, 15, 'SPORTS15'),
+    ('3fb7a3d8-ec10-4397-80bf-94373bdbc43f', 4, 5, 'THEATER5'),
+    ('d64e1cac-c079-4da3-8491-091811fbc0b3', 5, 2, 'BACK2SCHOOL');
 
 INSERT INTO
     review (review_id, rating, comment, account_id, event_id)
@@ -106,3 +112,5 @@ VALUES
     (3, 4, 'GO UBC!', 3, 3),
     (4, 4, 'All time favourite production of Hamlet!', 5, 4),
     (5, 2, 'It rained :(.', 1, 5);
+
+SELECT setval('review_review_id_seq', 5);

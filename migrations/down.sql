@@ -16,8 +16,12 @@ DROP TABLE area;
 
 DROP TABLE venue_type;
 
+DROP TABLE file;
+
 DROP TABLE guest;
 
 DROP TABLE organizer;
 
 DROP TABLE account;
+
+DROP TABLE message;
