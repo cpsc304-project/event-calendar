@@ -10,7 +10,7 @@ const LoggedInToolbar = async () => {
 
 	return (
 		<>
-			<h1>Hi {user.given_name}!</h1>
+			<h1>Hi {user?.given_name ?? "unknown"}!</h1>
 			<LogoutLink>Sign out pls</LogoutLink>
 		</>
 	);

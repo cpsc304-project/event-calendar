@@ -12,15 +12,10 @@ export const ourFileRouter = {
 			using logger = new Logger();
 			logger.debug("Starting image upload");
 
-			const { getUser, isAuthenticated } = getKindeServerSession();
-			if (!(await isAuthenticated())) {
-				logger.warn("An unauthenticated user tried to upload an image");
-				throw new Error("Unauthorized");
-			}
-
+			const { getUser } = getKindeServerSession();
 			const kindeUser = await getUser();
-			if (!kindeUser.id) {
-				logger.error("Kinde user is missing an ID", { user: kindeUser });
+			if (!kindeUser) {
+				logger.warn("An unauthenticated user tried to upload an image");
 				throw new Error("Unauthorized");
 			}
 
