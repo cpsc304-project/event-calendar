@@ -16,7 +16,7 @@ export async function getByKindeId(kindeId: string): Promise<User> {
 	`;
 
 	if (!user) {
-		throw new Error("Failed to upsert user by Kinde ID, no user returned.");
+		throw new Error("Failed to upsert user by Kinde ID: no user returned.");
 	}
 
 	return user;

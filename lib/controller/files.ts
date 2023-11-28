@@ -14,7 +14,7 @@ export async function add({ url, userId }: Omit<File, "id">): Promise<File> {
 	`;
 
 	if (!file) {
-		throw new Error("Failed to insert file, no file returned.");
+		throw new Error("Failed to insert a file: no file returned.");
 	}
 
 	return file;

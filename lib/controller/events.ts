@@ -30,4 +30,20 @@ if (!events) {
 return events;
 };
 
+export async function deleteEvent (id: number): Promise<void> {
+	const deleteEvent = await db.sql`
+	DELETE FROM events
+	WHERE id = $(id)
+	RETURNING
+	id;
+	`;
+
+	if (!deleteEvent) {
+		throw new Error('Was unable to delete event')
+	}
+
+
+
+}
+
 
