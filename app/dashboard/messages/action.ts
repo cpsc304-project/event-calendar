@@ -2,7 +2,7 @@
 
 import { messages } from "@/lib/controller";
 import { MessageForm } from "@/lib/schema/message";
-import { Logger } from "next-axiom";
+import { Logger } from "@/lib/logger";
 import { revalidateTag } from "next/cache";
 
 export interface AddMessageError {
@@ -22,14 +22,15 @@ export interface AddMessageReady {
 export type AddMessageState = AddMessageSuccess | AddMessageError | AddMessageReady;
 
 export async function addMessage(formData: FormData): Promise<AddMessageState> {
-	const logger = new Logger();
+	using logger = new Logger();
+
 	try {
 		logger.debug("Adding a new message");
 
 		const newMessage = MessageForm.parse(formData);
 
 		const message = await messages.add(newMessage);
-		logger.debug("Message added", { messageId: message.id });
+		logger.debug("Message added", { messageId: message.messageId });
 
 		revalidateTag("all-messages");
 
@@ -38,7 +39,5 @@ export async function addMessage(formData: FormData): Promise<AddMessageState> {
 		logger.error("Failed to add a new message", error as {});
 
 		return { state: "error", error: "Failed to add your message" };
-	} finally {
-		void logger.flush();
 	}
 }
