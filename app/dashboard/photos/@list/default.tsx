@@ -12,8 +12,8 @@ export default async function Default() {
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{files.map((file, i) => (
 					<Link
-						key={`image-${file.fileId}`}
-						href={`/dashboard/photos/${file.fileId}`}
+						key={`image-${file.file_id}`}
+						href={`/dashboard/photos/${file.file_id}`}
 						scroll={false}
 						className="relative aspect-square overflow-hidden rounded-xl before:inset-0 before:block before:aspect-square before:animate-pulse before:bg-gray-100"
 					>

@@ -3,15 +3,15 @@
 import { useOptimistic } from "react";
 import Form from "./form";
 import List from "./list";
-import { MessageForm, PotentialMessage } from "@/lib/schema/message";
+import { MessageForm, PotentialMessage } from "@/lib/schema";
 
-export const getNextId = (items: { messageId: number }[]) =>
-	Math.max(...items.map((x) => x.messageId)) + 1;
+export const getNextId = (items: { message_id: number }[]) =>
+	Math.max(...items.map((x) => x.message_id)) + 1;
 
 const messagesReducer = (rest: PotentialMessage[], formData: FormData) => [
 	{
 		...MessageForm.parse(formData),
-		messageId: getNextId(rest),
+		message_id: getNextId(rest),
 		optimistic: true,
 	},
 	...rest,

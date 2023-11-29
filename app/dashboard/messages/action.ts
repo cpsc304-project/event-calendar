@@ -1,7 +1,7 @@
 "use server";
 
 import { messages } from "@/lib/controller";
-import { MessageForm } from "@/lib/schema/message";
+import { MessageForm } from "@/lib/schema";
 import { Logger } from "@/lib/logger";
 import { revalidateTag } from "next/cache";
 
@@ -30,7 +30,7 @@ export async function addMessage(formData: FormData): Promise<AddMessageState> {
 		const newMessage = MessageForm.parse(formData);
 
 		const message = await messages.add(newMessage);
-		logger.debug("Message added", { messageId: message.messageId });
+		logger.debug("Message added", { message_id: message.message_id });
 
 		revalidateTag("all-messages");
 

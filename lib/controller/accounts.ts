@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { Logger } from "../logger";
-import { Account } from "../schema/accounts";
+import { Account } from "../schema";
 
 export async function getByKindeId(kindeId: string): Promise<Account> {
 	using logger = new Logger();
@@ -14,8 +14,8 @@ export async function getByKindeId(kindeId: string): Promise<Account> {
 		SET
 			kinde_id = account.kinde_id
 		RETURNING
-			account_id as "accountId",
-			kinde_id as "kindeId"
+			account_id,
+			kinde_id
 	`;
 
 	if (!account) {

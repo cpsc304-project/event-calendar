@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { Organizer } from "../schema/types";
+import { Organizer } from "../schema";
 
 export async function insertOrganizer(
 	account_id: number,
@@ -20,7 +20,7 @@ export async function insertOrganizer(
 			account_id,
 			organization_name
 	`;
-	
+
 	if (!organizer) {
 		throw new Error("Failed to insert organizer, no organizer returned.");
 	}

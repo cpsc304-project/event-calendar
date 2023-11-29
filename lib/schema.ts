@@ -1,18 +1,17 @@
 import { zfd } from "zod-form-data";
 
-export interface User {
-	user_id: number;
-	first_name: string;
-	last_name: string;
+export interface Account {
+	account_id: number;
+	kinde_id: string;
 }
 
 export interface Organizer {
-	user_id: number;
+	account_id: number;
 	organization_name: string;
 }
 
 export interface Guest {
-	user_id: number;
+	account_id: number;
 	is_ubc_student: boolean;
 }
 
@@ -44,8 +43,8 @@ export interface Event {
 	event_id: number;
 	name: string;
 	description: string;
-	start_date: string; // Assuming DATE is stored as a string
-	end_date: string; // Assuming DATE is stored as a string
+	start_date: Date;
+	end_date: Date;
 	organizer_id: number;
 	venue_id: number;
 }
@@ -63,7 +62,7 @@ export interface EventInCategory {
 export interface Ticket {
 	ticket_id: number;
 	event_id: number;
-	user_id: number | null;
+	account_id: number | null;
 	cost: number;
 }
 
@@ -78,18 +77,18 @@ export interface Review {
 	review_id: number;
 	rating: number;
 	comment: string | null;
-	user_id: number;
+	account_id: number;
 	event_id: number;
 }
 
 export interface File {
-	id: number;
+	file_id: number;
+	account_id: number;
 	url: string;
-	userId: number | undefined;
 }
 
 export interface Message {
-	id: number;
+	message_id: number;
 	title: string;
 	content: string;
 }

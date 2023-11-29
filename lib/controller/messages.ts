@@ -1,14 +1,14 @@
 import { db } from "../db";
-import { Message } from "../schema/message";
+import { Message } from "../schema";
 
-export async function add({ title, content }: Omit<Message, "messageId">): Promise<Message> {
+export async function add({ title, content }: Omit<Message, "message_id">): Promise<Message> {
 	const [message] = await db.sql<[Message?]>`
 		INSERT INTO message
 			(title, content)
 		VALUES
 			(${title}, ${content})
 		RETURNING
-			message_id as "messageId",
+			message_id,
 			title,
 			content
 	`;
@@ -25,7 +25,7 @@ export async function getAll(): Promise<Message[]> {
 		"all-messages",
 		db.sql<Message[]>`
 			SELECT
-				message_id as "messageId",
+				message_id,
 				title,
 				content
 			FROM
@@ -43,7 +43,7 @@ export async function getLatest(): Promise<Message | undefined> {
 		"latest-message",
 		db.sql<[Message?]>`
 			SELECT
-				message_id as "messageId",
+				message_id,
 				title,
 				content
 			FROM
