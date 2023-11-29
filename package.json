@@ -11,7 +11,7 @@
 	"dependencies": {
 		"@kinde-oss/kinde-auth-nextjs": "^2.0.10",
 		"@neondatabase/serverless": "^0.6.0",
-		"@uploadthing/react": "^5.7.0",
+		"@uploadthing/react": "^6.0.2",
 		"@vercel/analytics": "^1.1.1",
 		"next": "^14.0.3",
 		"next-axiom": "github:axiomhq/next-axiom",
@@ -19,7 +19,7 @@
 		"react-dom": "^18.2.0",
 		"server-only": "^0.0.1",
 		"tailwind-merge": "^2.0.0",
-		"uploadthing": "^5.7.4",
+		"uploadthing": "^6.0.3",
 		"zod": "^3.22.4",
 		"zod-form-data": "^2.0.2"
 	},
