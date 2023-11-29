@@ -39,6 +39,7 @@ export default function Navigation() {
 				</NavLink>
 				<NavLink current={selected === "organizer"} href="/dashboard/organizer">
 					Organizer
+				</NavLink>
 				<NavLink current={selected === "formtest"} href="/dashboard/formtest">
 					Form Test
 				</NavLink>
