@@ -1,65 +1,49 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
-CREATE TABLE message (
-    message_id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL
-);
-
-CREATE TABLE account (
-    account_id SERIAL PRIMARY KEY,
-    kinde_id CHAR(35) UNIQUE NOT NULL
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL
 );
 
 CREATE TABLE organizer (
-    account_id INTEGER PRIMARY KEY
-        REFERENCES account(account_id)
+    user_id SERIAL PRIMARY KEY NOT NULL
+        REFERENCES users(user_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    organization_name VARCHAR(500)
+    organization_name TEXT
 );
 
 CREATE TABLE guest (
-    account_id INTEGER PRIMARY KEY
-        REFERENCES account(account_id)
+    user_id SERIAL PRIMARY KEY NOT NULL
+        REFERENCES users(user_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     is_ubc_student BOOLEAN NOT NULL
 );
 
-CREATE TABLE file (
-    file_id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL
-        REFERENCES account(account_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    url TEXT NOT NULL
-);
-
 CREATE TABLE venue_type (
-    venue_type_name VARCHAR(100) PRIMARY KEY,
+    venue_type_name TEXT PRIMARY KEY NOT NULL,
     description TEXT NOT NULL
 );
 
 CREATE TABLE area (
-    postal_code CHAR(6),
-    country VARCHAR(100),
+    postal_code CHAR(6) NOT NULL,
+    country TEXT NOT NULL,
     city TEXT NOT NULL,
     province TEXT NOT NULL,
     PRIMARY KEY (postal_code, country)
 );
 
 CREATE TABLE venue (
-    venue_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    venue_id SERIAL PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
     description TEXT NOT NULL,
     seats INTEGER,
-    venue_type_name VARCHAR(100) NOT NULL
+    venue_type_name TEXT NOT NULL
         REFERENCES venue_type(venue_type_name)
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
     postal_code CHAR(6) NOT NULL,
-    country VARCHAR(100) NOT NULL,
+    country TEXT NOT NULL,
     street_number INTEGER NOT NULL,
     street_name TEXT NOT NULL,
     FOREIGN KEY (postal_code, country)
@@ -69,32 +53,32 @@ CREATE TABLE venue (
 );
 
 CREATE TABLE event (
-    event_id SERIAL PRIMARY KEY,
+    event_id SERIAL PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    organizer_id INTEGER NOT NULL
-        REFERENCES organizer(account_id)
+    organizer_id SERIAL NOT NULL
+        REFERENCES organizer(user_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    venue_id INTEGER NOT NULL
+    venue_id SERIAL NOT NULL
         REFERENCES venue(venue_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
 CREATE TABLE category (
-    category_name VARCHAR(100) PRIMARY KEY,
+    category_name TEXT PRIMARY KEY NOT NULL,
     description TEXT NOT NULL
 );
 
 CREATE TABLE event_in_category (
-    event_id INTEGER
+    event_id SERIAL NOT NULL
         REFERENCES event(event_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    category_name VARCHAR(100)
+    category_name TEXT NOT NULL
         REFERENCES category(category_name)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
@@ -102,13 +86,13 @@ CREATE TABLE event_in_category (
 );
 
 CREATE TABLE ticket (
-    ticket_id UUID DEFAULT gen_random_uuid(),
-    event_id INTEGER
+    ticket_id SERIAL NOT NULL,
+    event_id SERIAL NOT NULL
         REFERENCES event(event_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    account_id SERIAL
-        REFERENCES guest(account_id)
+    user_id SERIAL
+        REFERENCES guest(user_id)
         ON UPDATE CASCADE
         ON DELETE SET NULL,
     cost NUMERIC(20) NOT NULL,
@@ -116,8 +100,8 @@ CREATE TABLE ticket (
 );
 
 CREATE TABLE discounted_ticket (
-    ticket_id UUID,
-    event_id INTEGER,
+    ticket_id SERIAL NOT NULL,
+    event_id SERIAL NOT NULL,
     discount NUMERIC(3) NOT NULL,
     promo_code TEXT NOT NULL,
     PRIMARY KEY (ticket_id, event_id),
@@ -128,14 +112,14 @@ CREATE TABLE discounted_ticket (
 );
 
 CREATE TABLE review (
-    review_id SERIAL PRIMARY KEY,
+    review_id SERIAL PRIMARY KEY NOT NULL,
     rating NUMERIC(2) NOT NULL,
     comment VARCHAR(512),
-    account_id INTEGER NOT NULL
-        REFERENCES guest(account_id)
+    user_id SERIAL NOT NULL
+        REFERENCES guest(user_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    event_id INTEGER NOT NULL
+    event_id SERIAL NOT NULL
         REFERENCES event(event_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE

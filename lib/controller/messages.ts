@@ -1,14 +1,14 @@
 import { db } from "../db";
 import { Message } from "../schema/message";
 
-export async function add({ title, content }: Omit<Message, "messageId">): Promise<Message> {
+export async function add({ title, content }: Omit<Message, "id">): Promise<Message> {
 	const [message] = await db.sql<[Message?]>`
-		INSERT INTO message
+		INSERT INTO messages
 			(title, content)
 		VALUES
 			(${title}, ${content})
 		RETURNING
-			message_id as "messageId",
+			id,
 			title,
 			content
 	`;
@@ -25,13 +25,13 @@ export async function getAll(): Promise<Message[]> {
 		"all-messages",
 		db.sql<Message[]>`
 			SELECT
-				message_id as "messageId",
+				id,
 				title,
 				content
 			FROM
-				message
+				messages
 			ORDER BY
-				message_id DESC
+				id DESC
 		`,
 	);
 
@@ -43,13 +43,13 @@ export async function getLatest(): Promise<Message | undefined> {
 		"latest-message",
 		db.sql<[Message?]>`
 			SELECT
-				message_id as "messageId",
+				id,
 				title,
 				content
 			FROM
-				message
+				messages
 			ORDER BY
-				message_id DESC
+				id DESC
 			LIMIT 1
 		`,
 	);

@@ -5,13 +5,12 @@ import Form from "./form";
 import List from "./list";
 import { MessageForm, PotentialMessage } from "@/lib/schema/message";
 
-export const getNextId = (items: { messageId: number }[]) =>
-	Math.max(...items.map((x) => x.messageId)) + 1;
+export const getNextId = (items: { id: number }[]) => Math.max(...items.map((x) => x.id)) + 1;
 
 const messagesReducer = (rest: PotentialMessage[], formData: FormData) => [
 	{
 		...MessageForm.parse(formData),
-		messageId: getNextId(rest),
+		id: getNextId(rest),
 		optimistic: true,
 	},
 	...rest,

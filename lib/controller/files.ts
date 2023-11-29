@@ -1,16 +1,16 @@
 import { db } from "../db";
 import { File } from "../schema/file";
 
-export async function add({ url, accountId }: Omit<File, "fileId">): Promise<File> {
+export async function add({ url, userId }: Omit<File, "id">): Promise<File> {
 	const [file] = await db.sql<[File?]>`
-		INSERT INTO file
-			(account_id, url)
+		INSERT INTO files
+			(url, user_id)
 		VALUES
-			(${accountId}, ${url})
+			(${url}, ${userId})
 		RETURNING
-			file_id as "fileId",
-			account_id as "accountId",
-			url
+			id,
+			url,
+			user_id as userId
 	`;
 
 	if (!file) {
@@ -20,18 +20,18 @@ export async function add({ url, accountId }: Omit<File, "fileId">): Promise<Fil
 	return file;
 }
 
-export async function get(fileId: number): Promise<File | undefined> {
+export async function get(id: number): Promise<File | undefined> {
 	const [file] = await db.cached(
-		`file-${fileId}`,
+		`file-${id}`,
 		db.sql<[File?]>`
 			SELECT
-				file_id as "fileId",
-				account_id as "accountId",
-				url
+				id,
+				url,
+				user_id as userId
 			FROM
-				file
+				files
 			WHERE
-				file_id = ${fileId}
+				id = ${id}
 		`,
 	);
 
@@ -43,13 +43,13 @@ export async function getAll(): Promise<File[]> {
 		"all-files",
 		db.sql<File[]>`
 			SELECT
-				file_id as "fileId",
-				account_id as "accountId",
-				url
+				id,
+				url,
+				user_id as userId
 			FROM
-				file
+				files
 			ORDER BY
-				file_id DESC
+				id DESC
 		`,
 	);
 
