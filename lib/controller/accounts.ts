@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { Logger } from "../logger";
-import { Account } from "../schema";
+import { Account, Organizer } from "../schema";
 
 export async function getByKindeId(kindeId: string): Promise<Account> {
 	using logger = new Logger();
@@ -25,4 +25,48 @@ export async function getByKindeId(kindeId: string): Promise<Account> {
 	logger.debug("Account", account);
 
 	return account;
+}
+
+export async function getOrganizer(accountId: number): Promise<Organizer | undefined> {
+	using logger = new Logger();
+
+	const [organizer] = await db.sql<[Organizer?]>`
+		SELECT
+			account_id,
+			organization_name
+		FROM
+			organizer
+		WHERE
+			account_id = ${accountId}
+	`;
+
+	logger.debug("Organizer", organizer);
+
+	return organizer;
+}
+
+
+export async function insertOrganizer(account_id: number, organization_name: string): Promise<Organizer> {
+	using logger = new Logger();
+
+	const [organizer] = await db.sql<[Organizer?]>`
+		INSERT INTO organizer
+			(account_id, organization_name)
+		VALUES
+			(${account_id}, ${organization_name})
+			ON CONFLICT (account_id) DO UPDATE
+		SET
+			organization_name = EXCLUDED.organization_name
+		RETURNING
+			account_id,
+			organization_name
+	`;
+
+	if (!organizer) {
+		throw new Error("Failed to insert organizer, no organizer returned.");
+	}
+
+	logger.debug("Inserted Organizer", organizer);
+
+	return organizer;
 }
