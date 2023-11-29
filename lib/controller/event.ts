@@ -16,7 +16,7 @@ export async function addEvent({
 		VALUES
 			(${description}, ${startDate}, ${endDate}, ${name}, ${venue}, ${organiser}, ${category})
 		RETURNING
-			id,
+		  id,
 			description,
 			startDate,
 			endDate,
@@ -34,15 +34,53 @@ export async function addEvent({
 }
 
 export async function deleteEvent (id: number): Promise<void> {
-	const deleteEvent = await db.sql`
+	const [deleteEvent] = await db.sql<[Event?]>`
 	DELETE FROM events
 	WHERE id = $(id)
-	RETURNING
-	id;
 	`;
 
 	if (!deleteEvent) {
 		throw new Error('Was unable to delete event')
 	}
 
+}
+
+export async function updateEvent({
+	description,
+	startDate,
+	endDate,
+	name,
+	venue,
+	organiser,
+	category
+}: Omit<Event, "id">): Promise<Event> {
+	
+	const [updateEvent] = await db.sql<[Event?]> `
+	UPDATE Events
+	SET
+	  description = ${description},
+    startDate = ${startDate},
+    endDate = ${endDate},
+    name = ${name},
+    venue = ${venue},
+    organiser = ${organiser},
+    category = ${category}
+	WHERE
+	  id = $(id)
+	RETURNING
+	  id,
+	  description,
+	  startDate,
+	  endDate,
+	  name,
+	  venue,
+	  organiser,
+	  category`;
+
+if (!updateEvent) {
+	throw new Error('Was unable to update event')
+		}
+
+return updateEvent;
+		
 }
