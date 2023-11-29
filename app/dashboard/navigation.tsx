@@ -34,6 +34,9 @@ export default function Navigation() {
 				<NavLink current={selected === "photos"} href="/dashboard/photos">
 					Photos
 				</NavLink>
+				<NavLink current={selected === "user-testing"} href="/dashboard/user-testing">
+					User-Testing
+				</NavLink>
 			</ul>
 		</nav>
 	);
