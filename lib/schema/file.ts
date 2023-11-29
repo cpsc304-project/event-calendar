@@ -1,5 +1,5 @@
 export interface File {
-	id: number;
+	fileId: number;
+	accountId: number;
 	url: string;
-	userId: number | undefined;
 }

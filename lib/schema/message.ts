@@ -1,7 +1,7 @@
 import { zfd } from "zod-form-data";
 
 export interface Message {
-	id: number;
+	messageId: number;
 	title: string;
 	content: string;
 }
