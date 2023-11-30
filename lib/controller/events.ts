@@ -31,6 +31,23 @@ export async function add({
 	return event;
 }
 
+export async function getByEventId(event_id: number): Promise<Event | undefined> {
+	const [event] = await db.sql<[Event?]>`
+		SELECT
+			event_id,
+			name,
+			description,
+			start_date,
+			end_date,
+			organizer_id,
+			venue_id
+		FROM event
+		WHERE event_id = ${event_id}
+	`;
+
+	return event;
+}
+
 export async function remove(event_id: number): Promise<void> {
 	await db.sql`
 		DELETE FROM event
