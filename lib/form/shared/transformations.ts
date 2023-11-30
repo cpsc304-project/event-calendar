@@ -1,9 +1,10 @@
+import dayjs from "dayjs";
 import { basicTransformation } from "./helpers";
 import type { Transformation } from "./types";
 
 export const toDate = (): Transformation<number | string, Date> =>
 	basicTransformation(
-		(input) => new Date(input),
+		(input) => dayjs(input).toDate(),
 		(date) => !isNaN(date.valueOf()),
 		(input) => `"${input}" is not a valid date.`,
 	);

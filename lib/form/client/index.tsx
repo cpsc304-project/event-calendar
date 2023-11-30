@@ -1,4 +1,4 @@
-import { ReactNode, RefObject, useEffect, useRef, useState } from "react";
+import { ComponentPropsWithoutRef, ReactNode, RefObject, useEffect, useRef, useState } from "react";
 import { ObjectEntries, ObjectOutput } from "../shared/helpers";
 import { Schema } from "../shared/types";
 import { useFormState } from "react-dom";
@@ -7,18 +7,16 @@ import { useLogger } from "next-axiom";
 import { FormState } from "../shared";
 import { Action } from "../shared";
 
-interface FormProps {
-	children: ReactNode;
-}
+interface FormProps extends Omit<ComponentPropsWithoutRef<"form">, "action"> {}
 
 export const getFormComponent = (
 	ref: RefObject<HTMLFormElement>,
 	action: (formData: FormData) => void,
 ) => {
-	function Form(props: FormProps) {
+	function Form({ children, ...props }: FormProps) {
 		return (
-			<form ref={ref} action={action}>
-				{props.children}
+			<form {...props} ref={ref} action={action}>
+				{children}
 			</form>
 		);
 	}

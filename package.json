@@ -13,6 +13,7 @@
 		"@neondatabase/serverless": "^0.6.0",
 		"@uploadthing/react": "^6.0.2",
 		"@vercel/analytics": "^1.1.1",
+		"dayjs": "^1.11.10",
 		"next": "^14.0.3",
 		"next-axiom": "github:axiomhq/next-axiom",
 		"react": "^18.2.0",
