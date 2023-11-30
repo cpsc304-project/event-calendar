@@ -101,3 +101,45 @@ export const MessageForm = zfd.formData({
 	title: zfd.text(),
 	content: zfd.text(),
 });
+
+export interface EventGetByOrganizerId {
+	event_id: number;
+	event_name: string;
+	event_description: string;
+	start_date: Date;
+	end_date: Date;
+	venue_name: string;
+	venue_description: string;
+	venue_seats: number | null;
+	venue_street_number: number;
+	venue_street_name: string;
+	venue_country: string;
+	venue_postal_code: string;
+	venue_type_name: string;
+	venue_type_description: string;
+	category_name: string;
+	category_description: string;
+}
+
+export interface EventGetByEventId {
+	event_id: number;
+	event_name: string;
+	event_description: string;
+	start_date: string;
+	end_date: Date;
+	venue_name: string;
+	venue_description: string;
+	venue_seats: number;
+	venue_street_number: number;
+	venue_street_name: string;
+	venue_country: string;
+	venue_postal_code: string;
+	venue_type_name: string;
+	venue_type_description: string;
+	category_name: string;
+	category_description: string;
+	venue_city: string;
+	venue_province: string;
+	organizer_name: string;
+	organizer_id: number;
+}

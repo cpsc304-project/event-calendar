@@ -12,6 +12,9 @@ export default async function page() {
 	}
 	const user = await db.accounts.getByKindeId(kindeUser.id) ;
 	const organizer = await db.accounts.getOrganizer(user.account_id);
+	// const events = await db.events.getByOrganizerId(user.account_id);
+	const events = await db.events.getByOrganizerId(user.account_id);
+
 	
-	return (<Organizer user={user}  organizerName={organizer?.organization_name}/>);
+	return (<Organizer user={user}  organizerName={organizer?.organization_name} events={events}/>);
 }
