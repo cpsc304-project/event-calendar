@@ -1,7 +1,34 @@
+import { RESULTS_PER_QUERY } from "../constants";
 import { db } from "../db";
 import { Logger } from "../logger";
 import { Event, EventGetByEventId, EventGetByOrganizerId } from "../schema";
-import { RESULTS_PER_QUERY } from "../constants";
+
+export async function getFiltered(filterCategories: string[], page: number): Promise<Event[]> {
+	const limit = RESULTS_PER_QUERY;
+	const offset = page * limit;
+
+	const events = await db.cached(
+		"all-events",
+		db.sql<Event[]>`
+			SELECT DISTINCT
+				e.event_id,
+				e.name,
+				e.description,
+				e.start_date,
+				e.end_date,
+				e.organizer_id,
+				e.venue_id
+			FROM
+				event AS e
+			LEFT JOIN event_in_category AS ec ON e.event_id = ec.event_id
+					AND (array_length(${filterCategories}::varchar[], 1) IS NULL OR ec.category_name = ANY (${filterCategories}))
+			INNER JOIN category as c ON ec.category_name = c.category_name
+			LIMIT ${limit} OFFSET ${offset}
+		`,
+	);
+
+	return events;
+}
 
 export async function add({
 	description,
@@ -11,8 +38,6 @@ export async function add({
 	venue_id,
 	organizer_id,
 }: Omit<Event, "event_id">): Promise<Event> {
-	using logger = new Logger();
-
 	const [event] = await db.sql<[Event?]>`
 		INSERT INTO events
 			(name, description, start_date, end_date, organizer_id, venue_id)
@@ -82,10 +107,10 @@ export async function update({
 /*
  * Gets all events associated with an organizer, including venue name, venue type and catergory name
  */
-	export async function getByOrganizerId(organizer_id: number): Promise<EventGetByOrganizerId[]> {
-		using logger = new Logger();
+export async function getByOrganizerId(organizer_id: number): Promise<EventGetByOrganizerId[]> {
+	using logger = new Logger();
 
-		const events = await db.sql<EventGetByOrganizerId[]>`
+	const events = await db.sql<EventGetByOrganizerId[]>`
 			SELECT
 				e.event_id,
 				e.name as event_name,
@@ -112,30 +137,27 @@ export async function update({
 			WHERE
 				organizer_id = ${organizer_id}
 		`;
-		logger.debug("Event: getByOrganizerId", events);
-		return events;
-	}
+	logger.debug("Event: getByOrganizerId", events);
+	return events;
+}
 
-	// type EventInfo = {
-	// 	event_id: number;
-	// 	name: string;
-	// 	description: string;
-	// 	start_date: string;
-	// 	end_date: string;
-	// 	organizer_id: number;
-	// 	venue_id: number;
-	// 	venue_name: string;
-	// 	venue_type_name: string;
-	// 	category_name: string;
-	// }
+// type EventInfo = {
+// 	event_id: number;
+// 	name: string;
+// 	description: string;
+// 	start_date: string;
+// 	end_date: string;
+// 	organizer_id: number;
+// 	venue_id: number;
+// 	venue_name: string;
+// 	venue_type_name: string;
+// 	category_name: string;
+// }
 
-
-
-
-	export async function getByEventId(event_id: number): Promise<EventGetByEventId> {
-		using logger = new Logger();
-		console.log("event_id", event_id);
-		const event = await db.sql<any>`
+export async function getByEventId(event_id: number): Promise<EventGetByEventId> {
+	using logger = new Logger();
+	console.log("event_id", event_id);
+	const event = await db.sql<any>`
 			SELECT
 				e.event_id,
 				e.name as event_name,
@@ -168,28 +190,6 @@ export async function update({
 			WHERE
 				organizer_id = ${event_id}
 		`;
-		logger.debug("Event: getByEventId", event);
-		return event;
-	}
-
-	export async function getAll(page: number = 0): Promise<Event[]> {
-    const limit = RESULTS_PER_QUERY;
-    const offset = page * limit;
-    const events = await db.cached(
-        `events limit=${limit} offset=${offset}`,
-        db.sql<Event[]>`
-            SELECT
-                event_id,
-                name,
-                description,
-                start_date,
-                end_date,
-                organizer_id,
-                venue_id
-            FROM event
-            LIMIT ${limit} OFFSET ${offset}
-        `,
-    );
-
-    return events;
+	logger.debug("Event: getByEventId", event);
+	return event;
 }

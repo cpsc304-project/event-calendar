@@ -6,3 +6,11 @@ body {
 	font-size: 14px;
 	font-weight: 500;
 }
+
+.scrollbar::-webkit-scrollbar {
+	@apply h-2 w-2 bg-transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+	@apply rounded bg-gray-300 hover:bg-gray-400;
+}

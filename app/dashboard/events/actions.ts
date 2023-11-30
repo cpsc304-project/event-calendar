@@ -2,6 +2,6 @@
 
 import { db } from "@/lib/db";
 
-export async function getEvents(page: number) {
-	return await db.events.getAll(page);
+export async function getEvents(categoryNames: string[], page: number) {
+	return await db.events.getFiltered(categoryNames, page);
 }
