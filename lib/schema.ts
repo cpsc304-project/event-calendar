@@ -143,3 +143,16 @@ export interface EventGetByEventId {
 	organizer_name: string;
 	organizer_id: number;
 }
+
+export interface VenueInfo{
+	name: string;
+	description: string;
+	seats: number;
+	venue_type_name: string;
+	postal_code: string;
+	country: string;
+	street_number: string;
+	street_name: string;
+	city: string;
+	province: string;
+}
