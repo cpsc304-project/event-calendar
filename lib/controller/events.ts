@@ -1,6 +1,29 @@
+import { RESULTS_PER_QUERY } from "../constants";
 import { db } from "../db";
 import { Logger } from "../logger";
 import { Event, EventGetByEventId, EventGetByOrganizerId } from "../schema";
+
+export async function getAll(page: number = 0): Promise<Event[]> {
+	const limit = RESULTS_PER_QUERY;
+	const offset = page * limit;
+	const events = await db.cached(
+		`events limit=${limit} offset=${offset}`,
+		db.sql<Event[]>`
+			SELECT
+				event_id,
+				name,
+				description,
+				start_date,
+				end_date,
+				organizer_id,
+				venue_id
+			FROM event
+			LIMIT ${limit} OFFSET ${offset}
+		`,
+	);
+
+	return events;
+}
 
 export async function add({
 	description,
