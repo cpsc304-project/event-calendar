@@ -6,7 +6,7 @@ import { insertOrganizer } from "./actions";
 import { EventCard } from "@/lib/components/event-card";
 import Link from "next/link";
 
-const createLink = "/dashboard/organizer/create"
+const createLink = "/dashboard/organizer/create";
 
 // TODO: remove after testing..
 const mockEvents: EventGetByOrganizerId[] = [
@@ -132,8 +132,8 @@ export default function Organizer(props: {
 					<div className="container">
 						<div className="my-1">
 							<div className="text-2xl">Personal Info</div>
-							<div className="mb-2 flex flex-row">
-								<div className="basis-1/2">
+							<div className="mb-2 grid grid-cols-5 gap-2 sm:grid-cols-10">
+								<div className="col-span-4">
 									<div className="py-auto group relative text-base ">
 										<div className="py-1.5">
 											Organizer Name
@@ -161,21 +161,21 @@ export default function Organizer(props: {
 										</div>
 									</div>
 								</div>
-								<div className="basis-1/3">
+								<div className="col-span-5">
 									<div>
 										<input
 											type="text"
 											name="name"
 											id="name"
-											className="block w-full rounded-md border-2 py-1.5 pl-7 text-gray-900  placeholder:text-gray-400 sm:text-sm sm:leading-6"
+											className="block w-full rounded-md border-2 py-1.5 pl-1 text-gray-900  placeholder:text-gray-400 sm:text-sm sm:leading-6"
 											onChange={(e) => setName(e.target.value)}
 											value={name}
 										></input>
 									</div>
 								</div>
-								<div className="mx-2 basis-1/6">
+								<div className="col-span-1">
 									<button
-										className="py-auto h-full rounded bg-indigo-500 px-3 font-bold text-white hover:bg-blue-700"
+										className="sm:py-auto h-full rounded bg-indigo-500 p-3 px-3 font-bold text-white hover:bg-blue-700"
 										onClick={handleNameChange}
 									>
 										Confirm
@@ -192,9 +192,10 @@ export default function Organizer(props: {
 							<div className="mb-2 text-2xl">Your Events</div>
 							{eventsArray.length ? null : (
 								<div className="flex flex-row">
-									<div className="py-1.5">You have no events yet. Create your first event below!</div>
-									<div className="p-1.5">
+									<div className="py-1.5">
+										You have no events yet. Create your first event below!
 									</div>
+									<div className="p-1.5"></div>
 								</div>
 							)}
 							<div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:gap-4">
@@ -213,5 +214,3 @@ export default function Organizer(props: {
 		</>
 	);
 }
-
-

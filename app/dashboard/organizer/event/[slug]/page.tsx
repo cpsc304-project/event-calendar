@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import AdminPanel from "./admin-panel";
+import ManageEvent from "./manage-event";
 
 
 // TODO: This is a stub.  Need to implement this page.
@@ -8,7 +8,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
 	console.log(eventInfo);
 	return (
 		<>
-			<AdminPanel eventInfo={eventInfo} />
+			<ManageEvent eventInfo={eventInfo} />
 			<div>My Post: {params.slug}</div>
 		</>
 	);
