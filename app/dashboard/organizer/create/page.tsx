@@ -1,15 +1,19 @@
 import { db } from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
-import CreateEventPage from "./create-event";
+import { FormState } from "@/lib/form";
+import { formAction } from "@/lib/form/server";
+import { createEventSchema } from "./schema";
+import { Logger } from "@/lib/logger";
+import EventForm from "./eventForm";
 
-// TODO: This is a stub.  Need to implement this page.
 export default async function Page() {
 	const { getUser } = getKindeServerSession();
 	const kindeUser = await getUser();
 	if (!kindeUser) {
 		redirect("/dashboard");
 	}
+
 	const user = await db.accounts.getByKindeId(kindeUser.id);
 	const organizer = await db.accounts.getOrganizer(user.account_id);
 	if (!organizer) {
@@ -18,5 +22,14 @@ export default async function Page() {
 
 	const categories = await db.categories.getAll();
 
-	return <CreateEventPage user={user}  organizerName={organizer?.organization_name} eventCategories={categories}/>;
+	async function action(state: FormState<void>, formData: FormData) {
+		"use server";
+		const wrappedOrganizer = organizer;
+		return formAction(createEventSchema, formData, async (newEvent) => {
+			using logger = new Logger();
+			logger.debug("Create event action called", { newEvent, organizer: wrappedOrganizer });
+		});
+	}
+
+	return <EventForm action={action} categories={categories} />;
 }
