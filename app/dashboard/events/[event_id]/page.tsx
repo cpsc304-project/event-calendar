@@ -11,7 +11,7 @@ export default async function Page(props: { params: { event_id: string } }) {
 		redirect("/dashboard/events");
 	}
 
-	const reviews = await db.reviews.GetAllByEventId(event_id);
+	const reviews = await db.reviews.getAllByEventId(event_id);
 	const categories = await db.categories.getCategoriesByEventId(event_id);
 
 	return <EventDetails event ={event} reviews = {reviews} categories = {categories}/>;
