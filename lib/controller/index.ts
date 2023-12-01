@@ -7,4 +7,7 @@ export * as categories from "./categories";
 export * as tickets from "./tickets";
 export * as venues from "./venues";
 export * as reviews from "./reviews";
+<<<<<<< HEAD
 export * as awards from "./awards";
+=======
+>>>>>>> parent of f72c7f0 (user interface for events page)

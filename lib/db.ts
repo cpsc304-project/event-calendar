@@ -1,5 +1,9 @@
 import { neon, NeonQueryPromise } from "@neondatabase/serverless";
+<<<<<<< HEAD
 import { messages, files, accounts, events, categories, tickets, venues, reviews, awards } from "./controller";
+=======
+import { messages, files, accounts, events, categories, tickets, venues, reviews } from "./controller";
+>>>>>>> parent of f72c7f0 (user interface for events page)
 import "server-only";
 
 if (!process.env.DATABASE_URL) {
@@ -44,5 +48,10 @@ export const db = {
 	tickets,
 	venues,
 	reviews,
+<<<<<<< HEAD
 	awards
+=======
+>>>>>>> parent of f72c7f0 (user interface for events page)
 };
+
+

@@ -194,3 +194,4 @@ export async function getByEventId(event_id: number): Promise<EventGetByEventId>
 	logger.debug("Event: getByEventId", event);
 	return event;
 }
+

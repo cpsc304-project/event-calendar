@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import EventDetails from "./eventDetails";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/dist/types/server";
+import { EventDetails } from "./eventDetails";
+
 
 
 export default async function Page(props: { params: { event_id: string } }) {
@@ -11,8 +11,10 @@ export default async function Page(props: { params: { event_id: string } }) {
 		redirect("/dashboard/events");
 	}
 
-	const user = await.db.accounts.getByKindeId(kindeUser.id);
+	const reviews = await db.reviews.GetAllByEventId(event_id);
+	const categories = await db.categories.getCategoriesByEventId(event_id);
+
+	return <EventDetails event ={event} reviews = {reviews} categories = {categories}/>;
 
 
-	return <EventDetails user={user} organizerName={event.organizer_name} events={[event]} />;
 }

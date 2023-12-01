@@ -54,6 +54,13 @@ export interface Category {
 	description: string;
 }
 
+export interface GetCategoriesByEventIdReturn {
+	category_name: string;
+	event_id: number;
+	description: string;
+	
+}
+
 export interface EventInCategory {
 	event_id: number;
 	category_name: string;
@@ -125,7 +132,7 @@ export interface EventGetByEventId {
 	event_id: number;
 	event_name: string;
 	event_description: string;
-	start_date: string;
+	start_date: Date;
 	end_date: Date;
 	venue_name: string;
 	venue_description: string;
@@ -152,6 +159,17 @@ export interface GetCategoriesByEventIdReturn {
 	category_name: string;
 	event_id: number;
 	description: string;
+<<<<<<< HEAD
+=======
+	seats: number;
+	venue_type_name: string;
+	postal_code: string;
+	country: string;
+	street_number: string;
+	street_name: string;
+	city: string;
+	province: string;
+>>>>>>> parent of f72c7f0 (user interface for events page)
 }
 
 export interface ReviewGetAllByEventId {
@@ -161,6 +179,7 @@ export interface ReviewGetAllByEventId {
 	account_id: number;
 	event_id: number;
 }
+<<<<<<< HEAD
 
 export interface AwardedGuest {
 	account_id: number;
@@ -174,3 +193,5 @@ export interface AwardedOrganizer {
 	account_id: number;
 	organization_name: string;
 }
+=======
+>>>>>>> parent of f72c7f0 (user interface for events page)
