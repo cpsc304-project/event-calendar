@@ -157,7 +157,7 @@ export async function getByOrganizerId(organizer_id: number): Promise<EventGetBy
 export async function getByEventId(event_id: number): Promise<EventGetByEventId> {
 	using logger = new Logger();
 	console.log("event_id", event_id);
-	const event = await db.sql<any>`
+	const [event] = await db.sql<[EventGetByEventId]>`
 			SELECT
 				e.event_id,
 				e.name as event_name,
@@ -188,7 +188,8 @@ export async function getByEventId(event_id: number): Promise<EventGetByEventId>
 			JOIN area a ON v.postal_code = a.postal_code AND v.country = a.country
 			JOIN organizer o ON e.organizer_id = o.account_id
 			WHERE
-				organizer_id = ${event_id}
+				e.event_id = ${event_id}
+			LIMIT 1
 		`;
 	logger.debug("Event: getByEventId", event);
 	return event;
