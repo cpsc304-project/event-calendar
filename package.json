@@ -1,46 +1,54 @@
 {
-	"name": "event-calendar",
-	"version": "0.1.0",
-	"private": true,
-	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
-		"lint": "next lint"
-	},
-	"dependencies": {
-		"@kinde-oss/kinde-auth-nextjs": "^2.0.10",
-		"@mui/base": "5.0.0-beta.25",
-		"@neondatabase/serverless": "^0.6.0",
-		"@uploadthing/react": "^6.0.2",
-		"@vercel/analytics": "^1.1.1",
-		"dayjs": "^1.11.10",
-		"next": "^14.0.3",
-		"next-axiom": "github:axiomhq/next-axiom",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"server-only": "^0.0.1",
-		"sharp": "^0.33.0",
-		"tailwind-merge": "^2.0.0",
-		"uploadthing": "^6.0.3",
-		"zod": "^3.22.4",
-		"zod-form-data": "^2.0.2"
-	},
-	"devDependencies": {
-		"@next/bundle-analyzer": "^14.0.3",
-		"@tailwindcss/container-queries": "^0.1.1",
-		"@types/node": "^18.18.13",
-		"@types/react": "^18.2.39",
-		"@types/react-dom": "^18.2.17",
-		"autoprefixer": "^10.4.16",
-		"eslint": "^8.54.0",
-		"eslint-config-next": "^14.0.3",
-		"eslint-config-prettier": "^9.0.0",
-		"postcss": "^8.4.31",
-		"prettier": "^3.1.0",
-		"prettier-plugin-tailwindcss": "^0.5.7",
-		"tailwindcss": "^3.3.5",
-		"typescript": "^5.3.2",
-		"vercel": "^32.5.6"
-	}
+  "name": "event-calendar",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@kinde-oss/kinde-auth-nextjs": "^2.0.10",
+    "@mui/base": "5.0.0-beta.25",
+    "@neondatabase/serverless": "^0.6.0",
+    "@uploadthing/react": "^6.0.2",
+    "@vercel/analytics": "^1.1.1",
+    "dayjs": "^1.11.10",
+    "next": "^14.0.3",
+    "next-axiom": "github:axiomhq/next-axiom",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "server-only": "^0.0.1",
+    "sharp": "^0.33.0",
+    "tailwind-merge": "^2.0.0",
+    "uploadthing": "^6.0.3",
+    "zod": "^3.22.4",
+    "zod-form-data": "^2.0.2"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^14.0.3",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@types/node": "^18.18.13",
+    "@types/react": "^18.2.39",
+    "@types/react-dom": "^18.2.17",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.54.0",
+    "eslint-config-next": "^14.0.3",
+    "eslint-config-prettier": "^9.0.0",
+    "postcss": "^8.4.31",
+    "prettier": "^3.1.0",
+    "prettier-plugin-tailwindcss": "^0.5.7",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.3.2",
+    "vercel": "^32.5.6"
+  },
+  "description": "Project summary: The UBC event calendar is a platform within the events and entertainment industry, allowing organizers to host events with details, categories, and tickets, while attendees / guests can search for events, buy tickets, and leave reviews.",
+  "main": "postcss.config.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

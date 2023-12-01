@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { Category } from "../schema";
+import { Category, GetCategoriesByEventIdReturn } from "../schema";
 
 export async function getAll(): Promise<Category[]> {
 	const categories = await db.cached(
@@ -24,6 +24,22 @@ export async function insertEventInCategory(event_id: number, category_name: str
 		RETURNING
 			event_id,
 			category_name
+	`;
+
+	return categories;
+}
+
+export async function getCategoriesByEventId(
+	event_id: number,
+): Promise<GetCategoriesByEventIdReturn[]> {
+	const categories = await db.sql<GetCategoriesByEventIdReturn[]>`
+		SELECT
+			category_name,
+			event_id,
+			description
+		FROM event_in_category
+		JOIN category USING (category_name)
+		WHERE event_id = ${event_id}
 	`;
 
 	return categories;

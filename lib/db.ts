@@ -1,5 +1,5 @@
 import { neon, NeonQueryPromise } from "@neondatabase/serverless";
-import { messages, files, accounts, events, categories, tickets, venues } from "./controller";
+import { messages, files, accounts, events, categories, tickets, venues, reviews } from "./controller";
 import "server-only";
 
 if (!process.env.DATABASE_URL) {
@@ -43,4 +43,7 @@ export const db = {
 	categories,
 	tickets,
 	venues,
+	reviews,
 };
+
+
