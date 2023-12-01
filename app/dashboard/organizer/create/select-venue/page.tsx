@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
-import SelectVenuePage from "./select-venue";
+import SelectVenue from "./SelectVenue";
 
 export default async function Page() {
 	const { getUser } = getKindeServerSession();
@@ -16,7 +16,12 @@ export default async function Page() {
 	}
 
 	const venues = await db.venues.getAll();
+	const venueTypes = await db.venues.getTypes();
 
+	const mapboxApiKey = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
+	if (!mapboxApiKey) {
+		throw new Error("Missing NEXT_PUBLIC_MAPBOX_API_KEY in environment.");
+	}
 
-	return <SelectVenuePage venues={venues} />;
+	return <SelectVenue venues={venues} venueTypes={venueTypes} mapboxApikey={mapboxApiKey} />;
 }

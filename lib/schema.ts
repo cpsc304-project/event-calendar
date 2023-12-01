@@ -31,7 +31,7 @@ export interface Venue {
 	venue_id: number;
 	name: string;
 	description: string;
-	seats: number | null;
+	seats: number;
 	venue_type_name: string;
 	postal_code: string;
 	country: string;
@@ -144,18 +144,9 @@ export interface EventGetByEventId {
 	organizer_id: number;
 }
 
-export interface VenueInfo {
-	name: string;
-	description: string;
-	seats: number;
-	venue_type_name: string;
-	postal_code: string;
-	country: string;
-	street_number: string;
-	street_name: string;
-	city: string;
-	province: string;
-}
+export type VenueWithArea = Venue & Area;
+
+export type NewVenueWithArea = Omit<VenueWithArea, "venue_id">;
 
 export interface GetCategoriesByEventIdReturn {
 	category_name: string;
