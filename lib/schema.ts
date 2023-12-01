@@ -170,3 +170,16 @@ export interface ReviewGetAllByEventId {
 	account_id: number;
 	event_id: number;
 }
+
+export interface AwardedGuest {
+	account_id: number;
+	is_ubc_student: boolean;
+	kinde_id: string;	
+	first_name?: string;
+	last_name?: string;
+}
+
+export interface AwardedOrganizer {
+	account_id: number;
+	organization_name: string;
+}
