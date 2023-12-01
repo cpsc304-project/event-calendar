@@ -54,13 +54,6 @@ export interface Category {
 	description: string;
 }
 
-export interface GetCategoriesByEventIdReturn {
-	category_name: string;
-	event_id: number;
-	description: string;
-	
-}
-
 export interface EventInCategory {
 	event_id: number;
 	category_name: string;
@@ -132,7 +125,7 @@ export interface EventGetByEventId {
 	event_id: number;
 	event_name: string;
 	event_description: string;
-	start_date: Date;
+	start_date: string;
 	end_date: Date;
 	venue_name: string;
 	venue_description: string;
@@ -162,12 +155,4 @@ export interface VenueInfo{
 	street_name: string;
 	city: string;
 	province: string;
-}
-
-export interface ReviewGetAllByEventId {
-	review_id: number;
-	rating: number;
-	comment: string | null;
-	account_id: number;
-	event_id: number;
 }
