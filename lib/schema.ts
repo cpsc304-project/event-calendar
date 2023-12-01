@@ -144,7 +144,7 @@ export interface EventGetByEventId {
 	organizer_id: number;
 }
 
-export interface VenueInfo{
+export interface VenueInfo {
 	name: string;
 	description: string;
 	seats: number;
@@ -155,4 +155,18 @@ export interface VenueInfo{
 	street_name: string;
 	city: string;
 	province: string;
+}
+
+export interface GetCategoriesByEventIdReturn {
+	category_name: string;
+	event_id: number;
+	description: string;
+}
+
+export interface ReviewGetAllByEventId {
+	review_id: number;
+	rating: number;
+	comment: string | null;
+	account_id: number;
+	event_id: number;
 }
