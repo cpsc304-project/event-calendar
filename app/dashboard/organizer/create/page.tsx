@@ -5,7 +5,7 @@ import { FormState } from "@/lib/form";
 import { formAction } from "@/lib/form/server";
 import { createEventSchema } from "./schema";
 import { Logger } from "@/lib/logger";
-import EventForm from "./eventForm";
+import CreateEvent from "./CreateEvent";
 
 export default async function Page() {
 	const { getUser } = getKindeServerSession();
@@ -31,5 +31,5 @@ export default async function Page() {
 		});
 	}
 
-	return <EventForm action={action} categories={categories} />;
+	return <CreateEvent action={action} categories={categories} />;
 }
