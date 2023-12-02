@@ -34,7 +34,12 @@ const baseCreateEventSchema = formData({
 	ticket_count: [
 		string(),
 		toNumber(),
-		minValue(1, () => "Your event must have at least 1 attendee."),
+		minValue(1, () => "Your event must have at least 1 ticket."),
+	],
+	ticket_cost: [
+		string(),
+		toNumber(),
+		minValue(0, () => "Your tickets can't have a negative cost."),
 	],
 	start_date: [
 		string(),

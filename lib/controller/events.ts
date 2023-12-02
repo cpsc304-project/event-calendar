@@ -8,7 +8,7 @@ import {
 	EventGetByEventId,
 	EventInCategory,
 	EventWithVenueAndAreaAndCategories,
-	NewEventWithCategories,
+	NewEvent,
 	Venue,
 } from "../schema";
 import { insertNTickets } from "./tickets";
@@ -40,7 +40,7 @@ export async function getFiltered(filterCategories: string[], page: number): Pro
 	return events;
 }
 
-export async function createWithCategories(newEvent: NewEventWithCategories): Promise<Event> {
+export async function createWithCategories(newEvent: NewEvent): Promise<Event> {
 	using logger = new Logger();
 
 	const {
@@ -52,6 +52,7 @@ export async function createWithCategories(newEvent: NewEventWithCategories): Pr
 		venue_id,
 		category_names,
 		ticket_count,
+		ticket_cost,
 	} = newEvent;
 
 	const [event] = await db.sql<[Event?]>`
@@ -86,7 +87,13 @@ export async function createWithCategories(newEvent: NewEventWithCategories): Pr
 		event_in_categories.push(event_in_category);
 	}
 
-	await insertNTickets(event.event_id, 70, ticket_count);
+	const costInCents = ticket_cost * 100;
+
+	if (!Number.isInteger(costInCents) || costInCents < 0) {
+		throw new Error("Ticket cost must be a positive integer.");
+	}
+
+	await insertNTickets(event.event_id, costInCents, ticket_count);
 
 	logger.debug("events.createWithCategories", { event, event_in_categories });
 

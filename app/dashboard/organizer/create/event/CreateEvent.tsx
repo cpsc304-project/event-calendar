@@ -14,7 +14,7 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import DateField from "@/lib/components/form/DateField";
 import Status from "@/lib/components/form/Status";
 import { useCreateStore } from "../createStore";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Button from "@/lib/components/Button";
 
 function MultiSelect<T>({
@@ -34,7 +34,7 @@ function MultiSelect<T>({
 	return (
 		<fieldset>
 			<legend className="mb-1 block font-semibold">{label}</legend>
-			<div className="grid grid-flow-col grid-rows-2 justify-start gap-4">
+			<div className="grid grid-rows-2 gap-4 md:grid-flow-col md:justify-start">
 				{choices.map((choice) => (
 					<div key={value(choice)}>
 						<label>
@@ -54,8 +54,8 @@ function CategoryChip({ category }: { category: Category }) {
 	return (
 		<div
 			className={twMerge(
-				"flex h-36 w-48 flex-shrink-0 flex-col justify-between rounded-xl border p-4 text-start hover:border-gray-800",
-				"transform transition-all active:scale-95",
+				"flex h-24 w-full flex-shrink-0 flex-col justify-between rounded-xl border p-4 text-start hover:border-gray-800 md:h-36 md:w-48",
+				"transform transition-transform active:scale-95",
 				"peer-checked:border-2 peer-checked:border-gray-800 peer-checked:bg-gray-50",
 			)}
 		>
@@ -72,19 +72,9 @@ interface Props {
 
 export default function CreateEvent({ action, categories }: Props) {
 	const venue = useCreateStore((store) => store.venue);
+	if (!venue) redirect("/dashboard/organizer/create/venue");
 	const router = useRouter();
-
 	const { Form, Field, submitting, error, invalid, result } = useForm(createEventSchema, action);
-
-	const selectVenue = useCallback(() => {
-		router.push("/dashboard/organizer/create/venue");
-	}, [router]);
-
-	useEffect(() => {
-		if (!venue) {
-			selectVenue();
-		}
-	}, [venue, router, selectVenue]);
 
 	useEffect(() => {
 		if (result) {
@@ -92,56 +82,81 @@ export default function CreateEvent({ action, categories }: Props) {
 		}
 	}, [result, router]);
 
+	function selectVenue() {
+		router.push("/dashboard/organizer/create/venue");
+	}
+
 	return (
 		<div className="space-y-4">
 			<div className="mb-4 text-4xl">Create an Event</div>
 			<div className="divide-y rounded-lg border">
-				<section className="p-8">
+				<section className="flex flex-col items-start gap-4 px-4 py-8 md:px-8">
 					<h3 className="font-semibold">Venue</h3>
 					<div className="rounded-lg border p-4">
-						<h4 className="text-base font-semibold">{venue?.name}</h4>
+						<h4 className="text-base font-semibold">{venue.name}</h4>
 						<h5>
-							{venue?.street_number} {venue?.street_name}, {venue?.city}, {venue?.province}{" "}
-							{venue?.postal_code}
+							{venue.street_number} {venue.street_name}, {venue.city}, {venue.province}{" "}
+							{venue.postal_code}
 						</h5>
 					</div>
-					<Button onClick={selectVenue} className="mt-4">
-						Choose a different venue
-					</Button>
+					<Button onClick={selectVenue}>Choose a different venue</Button>
 				</section>
 				<Form className="divide-y">
-					<section className="p-8">
+					<section className="flex flex-col gap-4 px-4 py-8 md:px-8">
 						<Status error={error} invalid={invalid} />
-						<Field for="name">{(args) => <TextField args={args}>Event name</TextField>}</Field>
-						<Field for="description">
-							{(args) => <TextBox args={args}> Event description</TextBox>}
+						<Field for="name">
+							{(args) => (
+								<TextField args={args} className="md:w-1/2">
+									Name
+								</TextField>
+							)}
 						</Field>
-						<Field for="ticket_count">
-							{(args) => <NumberField args={args}>Number of attendees</NumberField>}
-						</Field>
+						<Field for="description">{(args) => <TextBox args={args}>Description</TextBox>}</Field>
+						<span className="grid gap-4 md:grid-cols-3">
+							<Field for="ticket_count">
+								{(args) => <NumberField args={args}>Number of tickets</NumberField>}
+							</Field>
+							<Field for="ticket_cost">
+								{(args) => (
+									<NumberField args={args} step={0.01}>
+										Ticket price
+									</NumberField>
+								)}
+							</Field>
+						</span>
 						<Field for="start_date">
-							{(args) => <DateField args={args}>Start date</DateField>}
+							{(args) => (
+								<DateField args={args} className="md:w-1/4">
+									Start date
+								</DateField>
+							)}
 						</Field>
-						<Field for="end_date">{(args) => <DateField args={args}>End date</DateField>}</Field>
+						<Field for="end_date">
+							{(args) => (
+								<DateField args={args} className="md:w-1/4">
+									End date
+								</DateField>
+							)}
+						</Field>
 					</section>
-					<section className="p-8">
+					<section className="px-4 py-8 md:px-8">
 						<Field for="category_names">
 							{(args) => (
 								<MultiSelect
 									{...args}
 									choices={categories}
 									value={(c) => c.category_name}
-									label="Event categories"
+									label="Categories"
 									choiceLabel={(category) => <CategoryChip category={category} />}
 								/>
 							)}
 						</Field>
 					</section>
 					<Field for="venue_id">
-						{(args) => <input {...args.props} type="hidden" value={venue?.venue_id} />}
+						{(args) => <input {...args.props} type="hidden" value={venue.venue_id} />}
 					</Field>
-					<section className="flex items-center gap-8 bg-gray-50 p-8">
-						<Submit />
+					<section className="flex items-center gap-8 bg-gray-50 py-8 md:px-8">
+						<Submit>Create</Submit>
 						{submitting && <ArrowPathIcon className="h-6 w-6 animate-spin" />}
 					</section>
 				</Form>

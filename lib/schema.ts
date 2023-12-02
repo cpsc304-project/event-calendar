@@ -55,8 +55,8 @@ export type EventWithVenueAndAreaAndCategories = Event & {
 	ticket_count: number;
 };
 
-export type NewEventWithCategories = Omit<
-	Event & { ticket_count: number; category_names: string[] },
+export type NewEvent = Omit<
+	Event & { ticket_count: number; ticket_cost: number; category_names: string[] },
 	"event_id"
 >;
 
