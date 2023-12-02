@@ -35,3 +35,98 @@ export async function insertNTickets(
 
 	return tickets;
 }
+
+export async function getNumberAvailable(event_id: number): Promise<number> {
+	using logger = new Logger();
+	const [ticketNumber] = await db.sql<[{ tickets_available: string }]>`
+	SELECT COUNT(ticket.ticket_id) AS tickets_available
+	FROM ticket
+	LEFT JOIN guest ON ticket.account_id = guest.account_id
+	WHERE ticket.event_id = ${event_id}
+  AND ticket.account_id IS NULL;
+	`;
+
+	if (!ticketNumber) {
+		throw new Error("Failed to get tickets, no tickets returned.");
+	}
+
+	logger.debug("Number Tickets Available: " + ticketNumber.tickets_available);
+
+	return parseInt(ticketNumber.tickets_available);
+}
+
+export async function getAvailableOne(event_id: number): Promise<Ticket | undefined> {
+	using logger = new Logger();
+	const [ticket] = await db.sql<[Ticket]>`
+	SELECT *
+	FROM ticket
+	LEFT JOIN guest ON ticket.account_id = guest.account_id
+	WHERE ticket.event_id = ${event_id}
+  AND ticket.account_id IS NULL;
+	`;
+
+	logger.debug("Available Ticket", ticket);
+	return ticket;
+}
+
+export async function getAvailableDiscountedOne(event_id: number): Promise<Ticket | undefined> {
+	using logger = new Logger();
+	const [ticket] = await db.sql<[Ticket]>`
+	SELECT *
+	FROM discounted_ticket
+	JOIN ticket ON discounted_ticket.ticket_id = ticket.ticket_id
+	LEFT JOIN guest ON ticket.account_id = guest.account_id
+	WHERE ticket.event_id = ${event_id}
+  AND ticket.account_id IS NULL;
+	`;
+
+	logger.debug("Available Discounted Ticket", ticket);
+	return ticket;
+}
+
+export async function setAccount(
+	ticket_id: string,
+	event_id: number,
+	account_id: number,
+): Promise<Ticket> {
+	using logger = new Logger();
+	const [ticket] = await db.sql<[Ticket]>`
+	UPDATE ticket
+	SET account_id = ${account_id}
+	WHERE ticket_id = ${ticket_id} AND event_id = ${event_id}
+	RETURNING *;
+	`;
+
+	if (!ticket) {
+		throw new Error("Failed to set account, no ticket returned.");
+	}
+
+	logger.debug("Set Account", ticket);
+
+	return ticket;
+}
+
+export async function getByAccountId(account_id: number): Promise<Ticket[]> {
+	using logger = new Logger();
+	const tickets = await db.sql<Ticket[]>`
+	SELECT *
+	FROM ticket
+	WHERE account_id = ${account_id};
+	`;
+
+	logger.debug("Tickets for account: " + account_id, tickets);
+	return tickets;
+}
+
+export async function getInfoByAccountId(account_id: number): Promise<any[]> {
+	using logger = new Logger();
+	const tickets = await db.sql<any[]>`
+	SELECT *
+	FROM ticket
+	WHERE account_id = ${account_id}
+	JOIN event ON ticket.event_id = event.event_id;
+	`;
+
+	logger.debug("Tickets for account: " + account_id, tickets);
+	return tickets;
+}
