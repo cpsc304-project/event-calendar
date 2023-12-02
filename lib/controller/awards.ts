@@ -1,12 +1,13 @@
 import { db } from "../db";
-import { Logger } from "../logger";
+import { Logger } from "next-axiom";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { AwardedGuest, AwardedOrganizer } from "../schema";
 
 // TODO: add first and last name from kinde to guests
 export async function getGuestsWhoAttendedAllEventsInCategory(category_name: string) {
-	using logger = new Logger();
-	const awardedGuests = await db.sql<AwardedGuest[]>`
+	const logger = new Logger();
+	try {
+		const awardedGuests = await db.sql<AwardedGuest[]>`
 	SELECT g.account_id, g.is_ubc_student, a.kinde_id
 	FROM guest g
 	JOIN account a ON g.account_id = a.account_id
@@ -20,14 +21,20 @@ export async function getGuestsWhoAttendedAllEventsInCategory(category_name: str
 			WHERE t.account_id = g.account_id
 	);
 		`;
-	logger.debug("Awards: getGuestsWhoAttendedAllEventsInCategory: " + category_name, awardedGuests);
-	return awardedGuests;
+		logger.debug(
+			"Awards: getGuestsWhoAttendedAllEventsInCategory: " + category_name,
+			awardedGuests,
+		);
+		return awardedGuests;
+	} finally {
+		logger.flush();
+	}
 }
 
-
 export async function getOrganizersWithEventsInAllCategories(): Promise<AwardedOrganizer[]> {
-	using logger = new Logger();
-	const awardedOrganizers = await db.sql<AwardedOrganizer[]>`
+	const logger = new Logger();
+	try {
+		const awardedOrganizers = await db.sql<AwardedOrganizer[]>`
 	SELECT o.account_id, o.organization_name
 	FROM organizer o
 	WHERE NOT EXISTS (
@@ -40,10 +47,13 @@ export async function getOrganizersWithEventsInAllCategories(): Promise<AwardedO
     WHERE e.organizer_id = o.account_id
 	);`;
 
-	if (awardedOrganizers.length == 0) {
-		logger.debug("Awards: getOrganizerWithEventsInAllCategories: No awarded organizers found.");
-	} else {
-		logger.debug("Awards: getOrganizerWithEventsInAllCategories: ", awardedOrganizers);
+		if (awardedOrganizers.length == 0) {
+			logger.debug("Awards: getOrganizerWithEventsInAllCategories: No awarded organizers found.");
+		} else {
+			logger.debug("Awards: getOrganizerWithEventsInAllCategories: ", awardedOrganizers);
+		}
+		return awardedOrganizers;
+	} finally {
+		logger.flush();
 	}
-	return awardedOrganizers;
 }

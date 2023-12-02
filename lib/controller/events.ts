@@ -1,6 +1,6 @@
 import { RESULTS_PER_QUERY } from "../constants";
 import { db } from "../db";
-import { Logger } from "../logger";
+import { Logger } from "next-axiom";
 import {
 	Area,
 	Category,
@@ -41,21 +41,21 @@ export async function getFiltered(filterCategories: string[], page: number): Pro
 }
 
 export async function createWithCategories(newEvent: NewEvent): Promise<Event> {
-	using logger = new Logger();
+	const logger = new Logger();
+	try {
+		const {
+			name,
+			description,
+			start_date,
+			end_date,
+			organizer_id,
+			venue_id,
+			category_names,
+			ticket_count,
+			ticket_cost,
+		} = newEvent;
 
-	const {
-		name,
-		description,
-		start_date,
-		end_date,
-		organizer_id,
-		venue_id,
-		category_names,
-		ticket_count,
-		ticket_cost,
-	} = newEvent;
-
-	const [event] = await db.sql<[Event?]>`
+		const [event] = await db.sql<[Event?]>`
 		INSERT INTO event
 			(name, description, start_date, end_date, organizer_id, venue_id)
 		VALUES
@@ -64,14 +64,14 @@ export async function createWithCategories(newEvent: NewEvent): Promise<Event> {
 		  event_id, name, description, start_date, end_date, organizer_id, venue_id
 	`;
 
-	if (!event) {
-		throw new Error("Failed to insert an event: no event returned.");
-	}
+		if (!event) {
+			throw new Error("Failed to insert an event: no event returned.");
+		}
 
-	let event_in_categories: EventInCategory[] = [];
+		let event_in_categories: EventInCategory[] = [];
 
-	for (const category_name of category_names) {
-		const [event_in_category] = await db.sql<[EventInCategory?]>`
+		for (const category_name of category_names) {
+			const [event_in_category] = await db.sql<[EventInCategory?]>`
 			INSERT INTO event_in_category
 				(event_id, category_name)
 			VALUES
@@ -80,22 +80,25 @@ export async function createWithCategories(newEvent: NewEvent): Promise<Event> {
 				event_id, category_name
 		`;
 
-		if (!event_in_category) {
-			throw new Error("Failed to insert a category: no category returned.");
+			if (!event_in_category) {
+				throw new Error("Failed to insert a category: no category returned.");
+			}
+
+			event_in_categories.push(event_in_category);
 		}
 
-		event_in_categories.push(event_in_category);
+		const costInCents =
+			parseInt(ticket_cost.toString().split(".")[0], 10) * 100 +
+			parseInt(ticket_cost.toString().split(".")[1], 10);
+
+		await insertNTickets(event.event_id, costInCents, ticket_count);
+
+		logger.debug("events.createWithCategories", { event, event_in_categories });
+
+		return event;
+	} finally {
+		logger.flush();
 	}
-
-	const costInCents =
-		parseInt(ticket_cost.toString().split(".")[0], 10) * 100 +
-		parseInt(ticket_cost.toString().split(".")[1], 10);
-
-	await insertNTickets(event.event_id, costInCents, ticket_count);
-
-	logger.debug("events.createWithCategories", { event, event_in_categories });
-
-	return event;
 }
 
 export async function remove(event_id: number): Promise<void> {
@@ -203,9 +206,9 @@ export async function update({
 }
 
 export async function getByOrganizerId(organizer_id: number): Promise<Event[]> {
-	using logger = new Logger();
-
-	const events = await db.sql<Event[]>`
+	const logger = new Logger();
+	try {
+		const events = await db.sql<Event[]>`
 			SELECT
 				event_id,
 				name,
@@ -219,14 +222,17 @@ export async function getByOrganizerId(organizer_id: number): Promise<Event[]> {
 			WHERE
 				organizer_id = ${organizer_id}
 		`;
-	logger.debug("Event: getByOrganizerId", events);
-	return events;
+		logger.debug("Event: getByOrganizerId", events);
+		return events;
+	} finally {
+		logger.flush();
+	}
 }
 
 export async function getByEventId(event_id: number): Promise<EventGetByEventId> {
-	using logger = new Logger();
-	console.log("event_id", event_id);
-	const [event] = await db.sql<[EventGetByEventId]>`
+	const logger = new Logger();
+	try {
+		const [event] = await db.sql<[EventGetByEventId]>`
 			SELECT
 				e.event_id,
 				e.name as event_name,
@@ -260,8 +266,11 @@ export async function getByEventId(event_id: number): Promise<EventGetByEventId>
 				e.event_id = ${event_id}
 			LIMIT 1
 		`;
-	logger.debug("Event: getByEventId", event);
-	return event;
+		logger.debug("events.getByEventId", { event });
+		return event;
+	} finally {
+		logger.flush();
+	}
 }
 
 type DealEvents = Event & { average_ticket_cost: number; average_category_cost: number };
@@ -363,9 +372,9 @@ type RawEventWithVenueAndAreaAndCategories = Event &
 export async function getWithVenueAndAreaAndCategories(
 	event_id: number,
 ): Promise<EventWithVenueAndAreaAndCategories> {
-	using logger = new Logger();
-
-	const rawEvents = await db.sql<RawEventWithVenueAndAreaAndCategories[]>`
+	const logger = new Logger();
+	try {
+		const rawEvents = await db.sql<RawEventWithVenueAndAreaAndCategories[]>`
 		SELECT
 			e.event_id,
 			e.name,
@@ -403,46 +412,49 @@ export async function getWithVenueAndAreaAndCategories(
 		WHERE e.event_id = ${event_id}
 	`;
 
-	if (rawEvents.length === 0) {
-		throw new Error(`No event with id ${event_id} found.`);
-	}
+		if (rawEvents.length === 0) {
+			throw new Error(`No event with id ${event_id} found.`);
+		}
 
-	const rawEvent = rawEvents[0];
+		const rawEvent = rawEvents[0];
 
-	const event: EventWithVenueAndAreaAndCategories = {
-		event_id: rawEvent.event_id,
-		name: rawEvent.name,
-		description: rawEvent.description,
-		ticket_count: rawEvent.ticket_count,
-		start_date: rawEvent.start_date,
-		end_date: rawEvent.end_date,
-		organizer_id: rawEvent.organizer_id,
-		venue_id: rawEvent.venue_id,
-		venue: {
+		const event: EventWithVenueAndAreaAndCategories = {
+			event_id: rawEvent.event_id,
+			name: rawEvent.name,
+			description: rawEvent.description,
+			ticket_count: rawEvent.ticket_count,
+			start_date: rawEvent.start_date,
+			end_date: rawEvent.end_date,
+			organizer_id: rawEvent.organizer_id,
 			venue_id: rawEvent.venue_id,
-			name: rawEvent.venue_name,
-			description: rawEvent.venue_description,
-			seats: rawEvent.venue_seats,
-			venue_type_name: rawEvent.venue_type_name,
-			postal_code: rawEvent.venue_postal_code,
-			country: rawEvent.venue_country,
-			street_number: rawEvent.venue_street_number,
-			street_name: rawEvent.venue_street_name,
-			city: rawEvent.area_city,
-			province: rawEvent.area_province,
-		},
-		categories: [],
-	};
+			venue: {
+				venue_id: rawEvent.venue_id,
+				name: rawEvent.venue_name,
+				description: rawEvent.venue_description,
+				seats: rawEvent.venue_seats,
+				venue_type_name: rawEvent.venue_type_name,
+				postal_code: rawEvent.venue_postal_code,
+				country: rawEvent.venue_country,
+				street_number: rawEvent.venue_street_number,
+				street_name: rawEvent.venue_street_name,
+				city: rawEvent.area_city,
+				province: rawEvent.area_province,
+			},
+			categories: [],
+		};
 
-	for (const rawEvent of rawEvents) {
-		if (!rawEvent.category_name || !rawEvent.category_description) break;
-		event.categories.push({
-			category_name: rawEvent.category_name,
-			description: rawEvent.category_description,
-		});
+		for (const rawEvent of rawEvents) {
+			if (!rawEvent.category_name || !rawEvent.category_description) break;
+			event.categories.push({
+				category_name: rawEvent.category_name,
+				description: rawEvent.category_description,
+			});
+		}
+
+		logger.debug("events.getWithVenueAndAreaAndCategories", { event });
+
+		return event;
+	} finally {
+		logger.flush();
 	}
-
-	logger.debug("events.getWithVenueAndAreaAndCategories", { event });
-
-	return event;
 }

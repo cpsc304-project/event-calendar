@@ -8,7 +8,7 @@ import EditEvent from "./EditEvent";
 import { EventWithVenueAndAreaAndCategories } from "@/lib/schema";
 import { Event } from "@/lib/schema";
 import { revalidateTag } from "next/cache";
-import { Logger } from "@/lib/logger";
+import { Logger } from "next-axiom";
 
 function arrayShallowEqual<T>(a: T[], b: T[]): boolean {
 	if (a.length !== b.length) {
@@ -48,34 +48,38 @@ export default async function Page(props: Props) {
 		"use server";
 		const capturedEvent = event;
 		return await formAction(editEventSchema, formData, async (data) => {
-			using logger = new Logger();
+			const logger = new Logger();
+			try {
+				if (data.ticket_count < capturedEvent.ticket_count) {
+					throw new FormError("You cannot reduce the number of attendees", "ticket_count");
+				}
 
-			if (data.ticket_count < capturedEvent.ticket_count) {
-				throw new FormError("You cannot reduce the number of attendees", "ticket_count");
+				logger.debug("Updating event", {
+					old_ticket_count: capturedEvent.ticket_count,
+					new_ticket_count: data.ticket_count,
+				});
+
+				const updatedEvent = await db.events.update({
+					event_id: capturedEvent.event_id,
+					name: data.name !== capturedEvent.name ? data.name : undefined,
+					description:
+						data.description !== capturedEvent.description ? data.description : undefined,
+					ticket_count:
+						data.ticket_count !== capturedEvent.ticket_count ? data.ticket_count : undefined,
+					category_names: !arrayShallowEqual(
+						data.category_names,
+						capturedEvent.categories.map((c) => c.category_name),
+					)
+						? data.category_names
+						: undefined,
+				});
+
+				revalidateTag("all-events");
+
+				return updatedEvent;
+			} finally {
+				logger.flush();
 			}
-
-			logger.debug("Updating event", {
-				old_ticket_count: capturedEvent.ticket_count,
-				new_ticket_count: data.ticket_count,
-			});
-
-			const updatedEvent = await db.events.update({
-				event_id: capturedEvent.event_id,
-				name: data.name !== capturedEvent.name ? data.name : undefined,
-				description: data.description !== capturedEvent.description ? data.description : undefined,
-				ticket_count:
-					data.ticket_count !== capturedEvent.ticket_count ? data.ticket_count : undefined,
-				category_names: !arrayShallowEqual(
-					data.category_names,
-					capturedEvent.categories.map((c) => c.category_name),
-				)
-					? data.category_names
-					: undefined,
-			});
-
-			revalidateTag("all-events");
-
-			return updatedEvent;
 		});
 	};
 

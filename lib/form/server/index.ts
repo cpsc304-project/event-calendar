@@ -1,4 +1,4 @@
-import { Logger } from "../../logger";
+import { Logger } from "next-axiom";
 import { FormState } from "../shared";
 import { ObjectEntries, ObjectOutput } from "../shared/helpers";
 import { Schema } from "../shared/types";
@@ -18,35 +18,38 @@ export async function formAction<Result, const Entries extends ObjectEntries<str
 	formData: FormData,
 	action: (props: ObjectOutput<Entries, string>) => Promise<Result>,
 ): Promise<FormState<Result>> {
-	using logger = new Logger();
-
-	const result = schema(formData);
-	if (result.state !== "success") {
-		logger.warn("A validation error occured in a form server action.", { issue: result.issue });
-		return {
-			state: "invalid",
-			issue: result.issue,
-		};
-	}
-
+	const logger = new Logger();
 	try {
-		return {
-			state: "success",
-			result: await action(result.result),
-		};
-	} catch (error) {
-		if (error instanceof FormError) {
+		const result = schema(formData);
+		if (result.state !== "success") {
+			logger.warn("A validation error occured in a form server action.", { issue: result.issue });
 			return {
-				state: "error",
-				error: error.message,
-				path: error.path,
+				state: "invalid",
+				issue: result.issue,
 			};
 		}
 
-		logger.error("An uncaught error occured in a form server action.", error as Error);
-		return {
-			state: "error",
-			error: "An unknown error occurred.",
-		};
+		try {
+			return {
+				state: "success",
+				result: await action(result.result),
+			};
+		} catch (error) {
+			if (error instanceof FormError) {
+				return {
+					state: "error",
+					error: error.message,
+					path: error.path,
+				};
+			}
+
+			logger.error("An uncaught error occured in a form server action.", error as Error);
+			return {
+				state: "error",
+				error: "An unknown error occurred.",
+			};
+		}
+	} finally {
+		logger.flush();
 	}
 }

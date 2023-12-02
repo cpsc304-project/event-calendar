@@ -3,7 +3,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
 import { Action, formAction } from "@/lib/form/server";
 import { createEventSchema } from "./schema";
-import { Logger } from "@/lib/logger";
+import { Logger } from "next-axiom";
 import CreateEvent from "./CreateEvent";
 import { Event } from "@/lib/schema";
 import { revalidateTag } from "next/cache";
@@ -27,11 +27,15 @@ export default async function Page() {
 		"use server";
 		const organizer_id = organizer.account_id;
 		return formAction(createEventSchema, formData, async (newEvent) => {
-			using logger = new Logger();
-			logger.debug("Creating event", { event: newEvent });
-			const event = await db.events.createWithCategories({ ...newEvent, organizer_id });
-			revalidateTag("all-events");
-			return event;
+			const logger = new Logger();
+			try {
+				logger.debug("Creating event", { event: newEvent });
+				const event = await db.events.createWithCategories({ ...newEvent, organizer_id });
+				revalidateTag("all-events");
+				return event;
+			} finally {
+				logger.flush();
+			}
 		});
 	};
 
