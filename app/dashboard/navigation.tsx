@@ -25,14 +25,8 @@ export default function Navigation() {
 		<nav>
 			<ul role="list" className="flex overflow-x-auto overflow-y-hidden">
 				<NavLink href="/">Home</NavLink>
-				<NavLink current={selected === null} href="/dashboard">
-					Dashboard
-				</NavLink>
 				<NavLink current={selected === "events"} href="/dashboard/events">
 					Events
-				</NavLink>
-				<NavLink current={selected === "messages"} href="/dashboard/messages">
-					Messages
 				</NavLink>
 				<NavLink current={selected === "awards"} href="/dashboard/awards">
 					Awards

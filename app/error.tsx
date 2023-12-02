@@ -1,5 +1,6 @@
 "use client";
 
+import Logo from "@/lib/components/Logo";
 import { useLogger } from "next-axiom";
 import { useEffect } from "react";
 
@@ -17,7 +18,7 @@ export default function Error({ error, reset }: Props) {
 
 	return (
 		<div className="flex h-screen flex-col items-center justify-around">
-			<h1 className="text-xl font-bold">Insert Logo Here</h1>
+			<Logo />
 			<div className="text-center">
 				<span className="flex divide-x-2 divide-black">
 					<h2 className="pr-2 font-semibold">500</h2>
