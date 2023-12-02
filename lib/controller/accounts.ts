@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { Logger } from "../logger";
-import { Account, Organizer } from "../schema";
+import { Account, Guest, Organizer } from "../schema";
 
 export async function getByKindeId(kindeId: string): Promise<Account> {
 	using logger = new Logger();
@@ -45,8 +45,10 @@ export async function getOrganizer(accountId: number): Promise<Organizer | undef
 	return organizer;
 }
 
-
-export async function insertOrganizer(account_id: number, organization_name: string): Promise<Organizer> {
+export async function insertOrganizer(
+	account_id: number,
+	organization_name: string,
+): Promise<Organizer> {
 	using logger = new Logger();
 
 	const [organizer] = await db.sql<[Organizer?]>`
@@ -69,4 +71,22 @@ export async function insertOrganizer(account_id: number, organization_name: str
 	logger.debug("Inserted Organizer", organizer);
 
 	return organizer;
+}
+
+export async function getGuest(accountId: number): Promise<Guest | undefined> {
+	using logger = new Logger();
+
+	const [guest] = await db.sql<[Guest?]>`
+		SELECT
+			account_id,
+			is_ubc_student
+		FROM
+			guest
+		WHERE
+			account_id = ${accountId}
+	`;
+
+	logger.debug("Guest", guest);
+
+	return guest;
 }

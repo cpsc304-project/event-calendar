@@ -11,11 +11,11 @@ function useSearchParamState(key: string) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
-	const values = searchParams.getAll(key);
+	const values = searchParams?.getAll(key);
 
 	const toggleValue = useCallback(
 		(value: string) => {
-			const params = new URLSearchParams(searchParams);
+			const params = new URLSearchParams(searchParams ?? "");
 			if (params.has(key, value)) {
 				params.delete(key, value);
 			} else {

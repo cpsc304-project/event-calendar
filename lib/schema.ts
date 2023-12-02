@@ -67,19 +67,13 @@ export interface EventInCategory {
 }
 
 export interface Ticket {
-	ticket_id: number;
+	ticket_id: string;
 	event_id: number;
 	account_id: number | null;
 	cost: number;
+	discount?: number;
+	promo_code?: string;
 }
-
-export interface DiscountedTicket {
-	ticket_id: number;
-	event_id: number;
-	discount: number;
-	promo_code: string;
-}
-
 export interface Review {
 	review_id: number;
 	rating: number;
@@ -159,17 +153,6 @@ export interface GetCategoriesByEventIdReturn {
 	category_name: string;
 	event_id: number;
 	description: string;
-<<<<<<< HEAD
-=======
-	seats: number;
-	venue_type_name: string;
-	postal_code: string;
-	country: string;
-	street_number: string;
-	street_name: string;
-	city: string;
-	province: string;
->>>>>>> parent of f72c7f0 (user interface for events page)
 }
 
 export interface ReviewGetAllByEventId {
@@ -179,7 +162,6 @@ export interface ReviewGetAllByEventId {
 	account_id: number;
 	event_id: number;
 }
-<<<<<<< HEAD
 
 export interface AwardedGuest {
 	account_id: number;
@@ -193,5 +175,3 @@ export interface AwardedOrganizer {
 	account_id: number;
 	organization_name: string;
 }
-=======
->>>>>>> parent of f72c7f0 (user interface for events page)
