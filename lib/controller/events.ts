@@ -286,10 +286,10 @@ export async function getGreatDeals(page: number): Promise<GreatDealsEvents[]> {
 	return events;
 }
 
-export async function getPopularEvents(filterCategories: string[], page: number): Promise<Event[]> {
+export async function getPopularEvents( page: number): Promise<Event[]> {
 	const limit = RESULTS_PER_QUERY;
 	const offset = page * limit;
-	const magicNumber = 100;
+	const magicNumber = 3;
 
 	const events = await db.cached(
 		"popular-events",
