@@ -84,6 +84,9 @@ export interface Ticket {
 	discount?: number;
 	promo_code?: string;
 }
+
+export type TicketInfo = Ticket & Event;
+
 export interface Review {
 	review_id: number;
 	rating: number;

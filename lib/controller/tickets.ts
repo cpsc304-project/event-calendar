@@ -7,7 +7,7 @@
 
 import { db } from "../db";
 import { Logger } from "../logger";
-import { Ticket } from "../schema";
+import { Ticket, TicketInfo } from "../schema";
 
 export async function insertNTickets(
 	event_id: number,
@@ -124,9 +124,9 @@ export async function getByAccountId(account_id: number): Promise<Ticket[]> {
 	return tickets;
 }
 
-export async function getInfoByAccountId(account_id: number): Promise<any[]> {
+export async function getInfoByAccountId(account_id: number): Promise<TicketInfo[]> {
 	using logger = new Logger();
-	const tickets = await db.sql<any[]>`
+	const tickets = await db.sql<TicketInfo[]>`
 	SELECT *
 	FROM ticket
 	JOIN event e ON ticket.event_id = e.event_id

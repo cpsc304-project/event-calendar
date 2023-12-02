@@ -107,7 +107,7 @@ CREATE TABLE ticket (
         REFERENCES event(event_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    account_id SERIAL
+    account_id INTEGER
         REFERENCES guest(account_id)
         ON UPDATE CASCADE
         ON DELETE SET NULL,

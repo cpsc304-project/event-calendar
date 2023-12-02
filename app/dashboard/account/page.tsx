@@ -1,8 +1,8 @@
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { LoginLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { db } from "@/lib/db";
-import { Ticket } from "@/lib/schema";
 import Link from "next/link";
+import { TicketInfo } from "@/lib/schema";
 
 export default async function Page() {
 	function toHumanDate(date: Date) {
@@ -14,20 +14,18 @@ export default async function Page() {
 		});
 	}
 
-	function generateEventTicketCard(ticket: any) {
-		console.log(ticket)
+	function TicketInfoCard({ ticket }: { ticket: TicketInfo }) {
 		return (
 			<Link href={`/dashboard/events/${ticket.event_id}`}>
-			<div className="w-full h-40 overflow-hidden border-2 rounded p-3 bg-indigo-100">
-				<div className="text-lg text-center">ADMIT ONE</div>
-				<div className="text-xl">{ticket.name}</div>
-				<div>
-					{toHumanDate(ticket.start_date)} - {toHumanDate(ticket.end_date)}
+				<div className="h-40 w-full overflow-hidden rounded border-2 bg-indigo-100 p-3">
+					<div className="text-center text-lg">ADMIT ONE</div>
+					<div className="text-xl">{ticket.name}</div>
+					<div>
+						{toHumanDate(ticket.start_date)} - {toHumanDate(ticket.end_date)}
+					</div>
+					<div>{ticket.description}</div>
 				</div>
-				<div>{ticket.description}</div>
-			</div>
 			</Link>
-
 		);
 	}
 
@@ -65,8 +63,10 @@ export default async function Page() {
 	const tickets = await db.tickets.getInfoByAccountId(user.account_id);
 
 	return (
-		<div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-			{tickets.map((ticket) => generateEventTicketCard(ticket))}
+		<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+			{tickets.map((ticket) => (
+				<TicketInfoCard key={ticket.ticket_id} ticket={ticket} />
+			))}
 		</div>
 	);
 }

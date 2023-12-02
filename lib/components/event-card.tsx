@@ -1,7 +1,7 @@
-import { EventGetByOrganizerId } from "@/lib/schema";
+import { Event, EventGetByOrganizerId } from "@/lib/schema";
 import Link from "next/link";
 
-export function EventCard(props: { event?: EventGetByOrganizerId; createLink?: string }) {
+export function EventCard(props: { event?: Event; createLink?: string }) {
 	return (
 		<>
 			{props.createLink ? (
@@ -9,8 +9,8 @@ export function EventCard(props: { event?: EventGetByOrganizerId; createLink?: s
 			) : props.event ? (
 				<Link href={`/dashboard/organizer/edit/event/${props.event.event_id}`}>
 					<div className="h-full w-full rounded-md border bg-indigo-200 p-4 lg:p-5">
-						<h4 className="font-bold">{props.event.event_name}</h4>
-						<p>{props.event.event_description}</p>
+						<h4 className="font-bold">{props.event.name}</h4>
+						<p>{props.event.description}</p>
 					</div>
 				</Link>
 			) : null}

@@ -6,7 +6,6 @@ import {
 	Category,
 	Event,
 	EventGetByEventId,
-	EventGetByOrganizerId,
 	EventInCategory,
 	EventWithVenueAndAreaAndCategories,
 	NewEventWithCategories,
@@ -159,8 +158,8 @@ export async function update({
 		throw new Error("Was unable to update event");
 	}
 
-	if (ticket_count) {
-		await insertNTickets(updatedEvent.event_id, 70, ticket_count - existingEvent.ticket_count);
+	if (ticket_count !== undefined) {
+		await insertNTickets(updatedEvent.event_id, 7000, ticket_count - existingEvent.ticket_count);
 	}
 
 	if (category_names !== undefined) {
@@ -188,55 +187,26 @@ export async function update({
 	return updatedEvent;
 }
 
-/*
- * Gets all events associated with an organizer, including venue name, venue type and catergory name
- */
-export async function getByOrganizerId(organizer_id: number): Promise<EventGetByOrganizerId[]> {
+export async function getByOrganizerId(organizer_id: number): Promise<Event[]> {
 	using logger = new Logger();
 
-	const events = await db.sql<EventGetByOrganizerId[]>`
+	const events = await db.sql<Event[]>`
 			SELECT
-				e.event_id,
-				e.name as event_name,
-				e.description as event_description,
-				e.start_date,
-				e.end_date,
-				v.name as venue_name,
-				v.description as venue_description,
-				v.seats as venue_seats,
-				v.street_number AS venue_street_number,
-				v.street_name AS venue_street_name,
-				v.country AS venue_country,
-				v.postal_code AS venue_postal_code,		
-				vt.venue_type_name as venue_type_name,
-				vt.description as venue_type_description,
-				c.category_name as category_name,
-				c.description as category_description
+				event_id,
+				name,
+				description,
+				start_date,
+				end_date,
+				organizer_id,
+				venue_id
 			FROM
-				event e
-			JOIN venue v ON e.venue_id = v.venue_id
-			JOIN venue_type vt ON v.venue_type_name = vt.venue_type_name
-			JOIN event_in_category ec ON e.event_id = ec.event_id
-			JOIN category c ON ec.category_name = c.category_name
+				event
 			WHERE
 				organizer_id = ${organizer_id}
 		`;
 	logger.debug("Event: getByOrganizerId", events);
 	return events;
 }
-
-// type EventInfo = {
-// 	event_id: number;
-// 	name: string;
-// 	description: string;
-// 	start_date: string;
-// 	end_date: string;
-// 	organizer_id: number;
-// 	venue_id: number;
-// 	venue_name: string;
-// 	venue_type_name: string;
-// 	category_name: string;
-// }
 
 export async function getByEventId(event_id: number): Promise<EventGetByEventId> {
 	using logger = new Logger();
@@ -279,82 +249,67 @@ export async function getByEventId(event_id: number): Promise<EventGetByEventId>
 	return event;
 }
 
-export interface GreatDealsEvents {
-	event_id: number;
-	name: string;
-	description: string;
-	start_date: Date;
-	end_date: Date;
-	organizer_id: number;
-	venue_id: number;
-	category_name: string;
-	average_ticket_cost: number;
-}
+type DealEvents = Event & { average_ticket_cost: number; average_category_cost: number };
 
-export async function getGreatDeals(page: number): Promise<GreatDealsEvents[]> {
+export async function getDeals(page: number): Promise<DealEvents[]> {
 	const limit = RESULTS_PER_QUERY;
 	const offset = page * limit;
 
 	const events = await db.cached(
-		"great-deals",
-		db.sql<GreatDealsEvents[]>`
-		SELECT
-		e.event_id,
-		e.name as event_name,
-		e.description,
-		e.start_date,
-		e.end_date,
-		e.organizer_id,
-		e.venue_id
-    ec.category_name as category_name,
-    AVG(t.cost) AS average_ticket_cost,
-    (
-        SELECT
-            AVG(t2.cost)
-        FROM
-            ticket t2
-        JOIN
-            event_in_category ec2 ON t2.event_id = ec2.event_id
-        WHERE
-            ec2.category_name = ec.category_name
-        GROUP BY
-            ec2.category_name
-    ) AS average_category_cost
-		FROM
-				event e
-		JOIN
-				event_in_category ec ON e.event_id = ec.event_id
-		JOIN
-				ticket t ON e.event_id = t.event_id
-		GROUP BY
-				e.event_id, e.name, ec.category_name
-		HAVING
-				AVG(t.cost) <= (
-						SELECT
-								AVG(t2.cost)
-						FROM
-								ticket t2
-						JOIN
-								event_in_category ec2 ON t2.event_id = ec2.event_id
-						WHERE
-								ec2.category_name = ec.category_name
-						GROUP BY
-								ec2.category_name
-				)
-		LIMIT ${limit} OFFSET ${offset};
+		"all-events",
+		db.sql<DealEvents[]>`
+			SELECT
+				e.event_id,
+				e.name,
+				e.description,
+				e.start_date,
+				e.end_date,
+				e.organizer_id,
+				e.venue_id,
+				AVG(t.cost) AS average_ticket_cost,
+				(
+					SELECT
+						AVG(t2.cost)
+					FROM
+						ticket t2
+						JOIN event_in_category ec2 ON t2.event_id = ec2.event_id
+					WHERE
+						ec2.category_name = ec.category_name
+					GROUP BY
+						ec2.category_name) AS average_category_cost
+				FROM
+					event e
+					JOIN event_in_category ec ON e.event_id = ec.event_id
+					JOIN ticket t ON e.event_id = t.event_id
+				GROUP BY
+					e.event_id,
+					e.name,
+					ec.category_name
+				HAVING
+					AVG(t.cost) <= (
+					SELECT
+						AVG(t2.cost)
+					FROM
+						ticket t2
+						JOIN event_in_category ec2 ON t2.event_id = ec2.event_id
+					WHERE
+						ec2.category_name = ec.category_name
+					GROUP BY
+						ec2.category_name)
+				LIMIT ${limit} OFFSET ${offset}
 		`,
 	);
 
 	return events;
 }
 
-export async function getPopularEvents(page: number): Promise<Event[]> {
+export async function getPopular(page: number): Promise<Event[]> {
 	const limit = RESULTS_PER_QUERY;
 	const offset = page * limit;
 	const magicNumber = 3;
 
 	const events = await db.cached(
-		"popular-events",
+		"all-events",
 		db.sql<Event[]>`
 			SELECT DISTINCT
 				e.event_id,
@@ -366,13 +321,15 @@ export async function getPopularEvents(page: number): Promise<Event[]> {
 				e.venue_id
 			FROM
 				event e
-			LEFT JOIN
-				ticket t ON e.event_id = t.event_id
-			WHERE t.account_id IS NOT NULL
+				LEFT JOIN ticket t ON e.event_id = t.event_id
+			WHERE
+				t.account_id IS NOT NULL
 			GROUP BY
-				e.event_id, e.name
-			HAVING COUNT(t.ticket_id) > ${magicNumber}
-			LIMIT ${limit} OFFSET ${offset};
+				e.event_id,
+				e.name
+			HAVING
+				COUNT(t.ticket_id) > ${magicNumber}
+			LIMIT ${limit} OFFSET ${offset}
 		`,
 	);
 
@@ -416,7 +373,7 @@ export async function getWithVenueAndAreaAndCategories(
 			c.description AS category_description,
 			(
 				SELECT
-					COUNT(*)
+					COUNT(*)::int
 				FROM
 					ticket AS t
 				WHERE

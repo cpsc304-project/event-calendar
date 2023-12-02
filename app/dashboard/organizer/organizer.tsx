@@ -1,6 +1,6 @@
 "use client";
 
-import { Account, EventGetByOrganizerId } from "@/lib/schema";
+import { Account, Event } from "@/lib/schema";
 import { useState, useTransition } from "react";
 import { insertOrganizer } from "./actions";
 import { EventCard } from "@/lib/components/event-card";
@@ -10,7 +10,7 @@ const createLink = "/dashboard/organizer/create/venue";
 export default function Organizer(props: {
 	user: Account;
 	organizerName: string | undefined;
-	events: EventGetByOrganizerId[];
+	events: Event[];
 }) {
 	const eventsArray = [...props.events];
 

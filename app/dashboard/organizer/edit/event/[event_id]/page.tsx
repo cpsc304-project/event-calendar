@@ -7,6 +7,8 @@ import { editEventSchema } from "./schema";
 import EditEvent from "./EditEvent";
 import { EventWithVenueAndAreaAndCategories } from "@/lib/schema";
 import { Event } from "@/lib/schema";
+import { revalidateTag } from "next/cache";
+import { Logger } from "@/lib/logger";
 
 function arrayShallowEqual<T>(a: T[], b: T[]): boolean {
 	if (a.length !== b.length) {
@@ -46,9 +48,16 @@ export default async function Page(props: Props) {
 		"use server";
 		const capturedEvent = event;
 		return await formAction(editEventSchema, formData, async (data) => {
+			using logger = new Logger();
+
 			if (data.ticket_count < capturedEvent.ticket_count) {
-				throw new FormError("You cannot reduce the number of attendees", "attendees");
+				throw new FormError("You cannot reduce the number of attendees", "ticket_count");
 			}
+
+			logger.debug("Updating event", {
+				old_ticket_count: capturedEvent.ticket_count,
+				new_ticket_count: data.ticket_count,
+			});
 
 			const updatedEvent = await db.events.update({
 				event_id: capturedEvent.event_id,
@@ -63,6 +72,8 @@ export default async function Page(props: Props) {
 					? data.category_names
 					: undefined,
 			});
+
+			revalidateTag("all-events");
 
 			return updatedEvent;
 		});

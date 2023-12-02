@@ -1,13 +1,22 @@
 "use client";
 
 import type { Category, Event } from "@/lib/schema";
-import { useState, useTransition, useLayoutEffect, useCallback, useRef, useEffect } from "react";
+import {
+	useState,
+	useTransition,
+	useLayoutEffect,
+	useCallback,
+	useRef,
+	useEffect,
+	useReducer,
+} from "react";
 import { getEvents } from "./actions";
 import { RESULTS_PER_QUERY } from "@/lib/constants";
 import Link from "next/link";
 import FiltersModal from "./FiltersModal";
 import Button from "@/lib/components/Button";
 import { temporaryStorage } from "./storage";
+import { usePathname, useRouter } from "next/navigation";
 
 function useSessionStorage<T>(key: string, initialValue: T) {
 	const [value, setValue] = useState(() => {
@@ -58,10 +67,17 @@ export default function List(props: {
 	events: Event[];
 	categories: Category[];
 	filterCategories: string[];
+	filterPopular: boolean;
+	filterDeals: boolean;
 }) {
+	const pathname = usePathname();
+	const router = useRouter();
+
 	const [events, setEvents] = useSessionStorage("events", props.events);
 	const [page, setPage] = useSessionStorage("page", 0);
 	const [more, setMore] = useSessionStorage("more", props.events.length === RESULTS_PER_QUERY);
+	const [filterPopular, setFilterPopular] = useSessionStorage("popular", props.filterPopular);
+	const [filterDeals, setFilterDeals] = useSessionStorage("deals", props.filterDeals);
 	const [filterCategories, setFilterCategories] = useSessionStorage(
 		"filter",
 		props.filterCategories,
@@ -71,16 +87,40 @@ export default function List(props: {
 	const [loading, startTransition] = useTransition();
 
 	useLayoutEffect(() => {
-		if (!arrayShallowEqual(filterCategories, props.filterCategories)) {
-			setEvents(props.events);
-			setPage(0);
-			setMore(props.events.length === RESULTS_PER_QUERY);
-		}
-	}, [props.events, props.filterCategories, filterCategories, setEvents, setMore, setPage]);
+		if (
+			arrayShallowEqual(filterCategories, props.filterCategories) &&
+			filterPopular === props.filterPopular &&
+			filterDeals === props.filterDeals
+		)
+			return;
+		setEvents(props.events);
+		setPage(0);
+		setMore(props.events.length === RESULTS_PER_QUERY);
+	}, [
+		filterCategories,
+		filterDeals,
+		filterPopular,
+		props.events,
+		props.filterCategories,
+		props.filterDeals,
+		props.filterPopular,
+		setEvents,
+		setMore,
+		setPage,
+	]);
 
 	useEffect(() => {
 		setFilterCategories(props.filterCategories);
-	}, [props.filterCategories, setFilterCategories]);
+		setFilterPopular(props.filterPopular);
+		setFilterDeals(props.filterDeals);
+	}, [
+		props.filterCategories,
+		props.filterDeals,
+		props.filterPopular,
+		setFilterCategories,
+		setFilterDeals,
+		setFilterPopular,
+	]);
 
 	function getMoreEvents() {
 		if (!more) {
@@ -88,7 +128,12 @@ export default function List(props: {
 		}
 
 		startTransition(async () => {
-			const newEvents = await getEvents(props.filterCategories, page + 1);
+			const newEvents = await getEvents(
+				props.filterCategories,
+				props.filterPopular,
+				props.filterDeals,
+				page + 1,
+			);
 			setEvents([...events, ...newEvents]);
 			setPage(page + 1);
 			setMore(newEvents.length === RESULTS_PER_QUERY);
@@ -107,11 +152,19 @@ export default function List(props: {
 	}
 
 	function getGreatDeals() {
-		// TODO: Add HERE
+		const params = new URLSearchParams();
+		if (!filterDeals) {
+			params.set("deals", "true");
+		}
+		router.push(`${pathname}?${params.toString()}`);
 	}
 
 	function getPopularEvents() {
-		// TODO: Add HERE
+		const params = new URLSearchParams();
+		if (!filterPopular) {
+			params.set("popular", "true");
+		}
+		router.push(`${pathname}?${params.toString()}`);
 	}
 
 	return (
