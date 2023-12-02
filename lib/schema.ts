@@ -49,12 +49,21 @@ export interface Event {
 	venue_id: number;
 }
 
+export type EventWithVenueAndAreaAndCategories = Event & {
+	venue: Venue & Area;
+	categories: Category[];
+	ticket_count: number;
+};
+
+export type NewEventWithCategories = Omit<
+	Event & { ticket_count: number; category_names: string[] },
+	"event_id"
+>;
+
 export interface Category {
 	category_name: string;
 	description: string;
 }
-
-export type NewEventWithCategories = Omit<Event & { category_names: string[] }, "event_id">;
 
 export interface GetCategoriesByEventIdReturn {
 	category_name: string;

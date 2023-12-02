@@ -22,7 +22,7 @@ export async function insertNTickets(
 	INSERT INTO ticket (event_id, account_id, cost)
 	SELECT
     ${event_id} AS event_id,
-    ${cost} AS cost,
+    ${cost} AS cost
 	FROM generate_series(1, ${number_of_tickets})
 	RETURNING *;
 	`;

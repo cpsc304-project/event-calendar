@@ -1,33 +1,9 @@
 import Button from "@/lib/components/Button";
 import { Category } from "@/lib/schema";
-import { revalidatePath } from "next/cache";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { temporaryStorage } from "./storage";
-
-function useSearchParamState(key: string) {
-	const router = useRouter();
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
-	const values = searchParams?.getAll(key);
-
-	const toggleValue = useCallback(
-		(value: string) => {
-			const params = new URLSearchParams(searchParams ?? "");
-			if (params.has(key, value)) {
-				params.delete(key, value);
-			} else {
-				params.append(key, value);
-			}
-			router.replace(`${pathname}?${params.toString()}`);
-		},
-		[key, pathname, router, searchParams],
-	);
-
-	return [values, toggleValue] as const;
-}
 
 interface Props {
 	categories: Category[];

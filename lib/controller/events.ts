@@ -2,13 +2,17 @@ import { RESULTS_PER_QUERY } from "../constants";
 import { db } from "../db";
 import { Logger } from "../logger";
 import {
+	Area,
 	Category,
 	Event,
 	EventGetByEventId,
 	EventGetByOrganizerId,
 	EventInCategory,
+	EventWithVenueAndAreaAndCategories,
 	NewEventWithCategories,
+	Venue,
 } from "../schema";
+import { insertNTickets } from "./tickets";
 
 export async function getFiltered(filterCategories: string[], page: number): Promise<Event[]> {
 	const limit = RESULTS_PER_QUERY;
@@ -40,8 +44,16 @@ export async function getFiltered(filterCategories: string[], page: number): Pro
 export async function createWithCategories(newEvent: NewEventWithCategories): Promise<Event> {
 	using logger = new Logger();
 
-	const { name, description, start_date, end_date, organizer_id, venue_id, category_names } =
-		newEvent;
+	const {
+		name,
+		description,
+		start_date,
+		end_date,
+		organizer_id,
+		venue_id,
+		category_names,
+		ticket_count,
+	} = newEvent;
 
 	const [event] = await db.sql<[Event?]>`
 		INSERT INTO event
@@ -75,6 +87,8 @@ export async function createWithCategories(newEvent: NewEventWithCategories): Pr
 		event_in_categories.push(event_in_category);
 	}
 
+	await insertNTickets(event.event_id, 70, ticket_count);
+
 	logger.debug("events.createWithCategories", { event, event_in_categories });
 
 	return event;
@@ -91,20 +105,44 @@ export async function update({
 	event_id,
 	name,
 	description,
+	ticket_count,
 	start_date,
 	end_date,
-	organizer_id,
-	venue_id,
-}: Event): Promise<Event> {
-	const [event] = await db.sql<[Event?]>`
+	category_names,
+}: Partial<
+	Omit<Event, "venue_id" | "organizer_id"> & {
+		ticket_count: number;
+		category_names: string[];
+	}
+> &
+	Pick<Event, "event_id">): Promise<Event> {
+	const [existingEvent] = await db.sql<[(Event & { ticket_count: number })?]>`
+		SELECT
+			event_id,
+			name,
+			description,
+			start_date,
+			end_date,
+			organizer_id,
+			venue_id,
+			(SELECT COUNT(*) FROM ticket as t WHERE t.event_id = e.event_id) as ticket_count
+		FROM
+			event as e
+		WHERE
+			e.event_id = ${event_id}
+	`;
+
+	if (!existingEvent) {
+		throw new Error("No event with that id exists");
+	}
+
+	const [updatedEvent] = await db.sql<[Event?]>`
 		UPDATE event
 		SET
-			name = ${name}
-			description = ${description},
-			start_date = ${start_date},
-			end_date = ${end_date},
-			organizer_id = ${organizer_id},
-			venue_id = ${venue_id}
+			name = ${name ?? existingEvent.name},
+			description = ${description ?? existingEvent.description},
+			start_date = ${start_date ?? existingEvent.start_date},
+			end_date = ${end_date ?? existingEvent.end_date}
 		WHERE
 			event_id = ${event_id}
 		RETURNING
@@ -117,11 +155,37 @@ export async function update({
 			venue_id
 	`;
 
-	if (!event) {
+	if (!updatedEvent) {
 		throw new Error("Was unable to update event");
 	}
 
-	return event;
+	if (ticket_count) {
+		await insertNTickets(updatedEvent.event_id, 70, ticket_count - existingEvent.ticket_count);
+	}
+
+	if (category_names !== undefined) {
+		await db.sql`
+			DELETE FROM event_in_category
+			WHERE event_id = ${event_id}
+		`;
+
+		for (const category_name of category_names) {
+			const [event_in_category] = await db.sql<[EventInCategory?]>`
+				INSERT INTO event_in_category
+					(event_id, category_name)
+				VALUES
+					(${event_id}, ${category_name})
+				RETURNING
+					event_id, category_name
+			`;
+
+			if (!event_in_category) {
+				throw new Error("Failed to insert a category: no category returned.");
+			}
+		}
+	}
+
+	return updatedEvent;
 }
 
 /*
@@ -227,8 +291,6 @@ export interface GreatDealsEvents {
 	average_ticket_cost: number;
 }
 
-
-
 export async function getGreatDeals(page: number): Promise<GreatDealsEvents[]> {
 	const limit = RESULTS_PER_QUERY;
 	const offset = page * limit;
@@ -286,7 +348,7 @@ export async function getGreatDeals(page: number): Promise<GreatDealsEvents[]> {
 	return events;
 }
 
-export async function getPopularEvents( page: number): Promise<Event[]> {
+export async function getPopularEvents(page: number): Promise<Event[]> {
 	const limit = RESULTS_PER_QUERY;
 	const offset = page * limit;
 	const magicNumber = 3;
@@ -315,4 +377,100 @@ export async function getPopularEvents( page: number): Promise<Event[]> {
 	);
 
 	return events;
+}
+
+type Prefixed<T extends Record<string, any>, P extends string> = {
+	[K in keyof T as K extends string ? (K extends `${P}_${string}` ? K : `${P}_${K}`) : never]: T[K];
+};
+
+type RawEventWithVenueAndAreaAndCategories = Event &
+	Prefixed<Venue, "venue"> &
+	Prefixed<Area, "area"> &
+	Partial<Prefixed<Category, "category">> & { ticket_count: number };
+
+export async function getWithVenueAndAreaAndCategories(
+	event_id: number,
+): Promise<EventWithVenueAndAreaAndCategories> {
+	using logger = new Logger();
+
+	const rawEvents = await db.sql<RawEventWithVenueAndAreaAndCategories[]>`
+		SELECT
+			e.event_id,
+			e.name,
+			e.description,
+			e.start_date,
+			e.end_date,
+			e.organizer_id,
+			v.venue_id,
+			v.name AS venue_name,
+			v.description AS venue_description,
+			v.seats AS venue_seats,
+			v.venue_type_name,
+			v.postal_code AS venue_postal_code,
+			v.country AS venue_country,
+			v.street_number AS venue_street_number,
+			v.street_name AS venue_street_name,
+			a.city AS area_city,
+			a.province AS area_province,
+			c.category_name,
+			c.description AS category_description,
+			(
+				SELECT
+					COUNT(*)
+				FROM
+					ticket AS t
+				WHERE
+					t.event_id = e.event_id
+			) AS ticket_count
+		FROM
+			event AS e
+		INNER JOIN venue AS v ON e.venue_id = v.venue_id
+		INNER JOIN area AS a ON v.postal_code = a.postal_code AND v.country = a.country
+		LEFT JOIN event_in_category AS ec ON e.event_id = ec.event_id
+		LEFT JOIN category AS c ON ec.category_name = c.category_name
+		WHERE e.event_id = ${event_id}
+	`;
+
+	if (rawEvents.length === 0) {
+		throw new Error(`No event with id ${event_id} found.`);
+	}
+
+	const rawEvent = rawEvents[0];
+
+	const event: EventWithVenueAndAreaAndCategories = {
+		event_id: rawEvent.event_id,
+		name: rawEvent.name,
+		description: rawEvent.description,
+		ticket_count: rawEvent.ticket_count,
+		start_date: rawEvent.start_date,
+		end_date: rawEvent.end_date,
+		organizer_id: rawEvent.organizer_id,
+		venue_id: rawEvent.venue_id,
+		venue: {
+			venue_id: rawEvent.venue_id,
+			name: rawEvent.venue_name,
+			description: rawEvent.venue_description,
+			seats: rawEvent.venue_seats,
+			venue_type_name: rawEvent.venue_type_name,
+			postal_code: rawEvent.venue_postal_code,
+			country: rawEvent.venue_country,
+			street_number: rawEvent.venue_street_number,
+			street_name: rawEvent.venue_street_name,
+			city: rawEvent.area_city,
+			province: rawEvent.area_province,
+		},
+		categories: [],
+	};
+
+	for (const rawEvent of rawEvents) {
+		if (!rawEvent.category_name || !rawEvent.category_description) break;
+		event.categories.push({
+			category_name: rawEvent.category_name,
+			description: rawEvent.category_description,
+		});
+	}
+
+	logger.debug("events.getWithVenueAndAreaAndCategories", { event });
+
+	return event;
 }
