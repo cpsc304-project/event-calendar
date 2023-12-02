@@ -18,7 +18,7 @@ export default async function Page() {
 		console.log(ticket)
 		return (
 			<Link href={`/dashboard/events/${ticket.event_id}`}>
-			<div className="w-full overflow-hidden border-2 rounded p-3 bg-indigo-100">
+			<div className="w-full h-40 overflow-hidden border-2 rounded p-3 bg-indigo-100">
 				<div className="text-lg text-center">ADMIT ONE</div>
 				<div className="text-xl">{ticket.name}</div>
 				<div>
