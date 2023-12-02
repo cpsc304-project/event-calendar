@@ -87,11 +87,9 @@ export async function createWithCategories(newEvent: NewEvent): Promise<Event> {
 		event_in_categories.push(event_in_category);
 	}
 
-	const costInCents = ticket_cost * 100;
-
-	if (!Number.isInteger(costInCents) || costInCents < 0) {
-		throw new Error("Ticket cost must be a positive integer.");
-	}
+	const costInCents =
+		parseInt(ticket_cost.toString().split(".")[0], 10) * 100 +
+		parseInt(ticket_cost.toString().split(".")[1], 10);
 
 	await insertNTickets(event.event_id, costInCents, ticket_count);
 
