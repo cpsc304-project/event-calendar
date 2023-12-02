@@ -1,1 +1,1 @@
-export const RESULTS_PER_QUERY = 3;
+export const RESULTS_PER_QUERY = 25;
