@@ -106,10 +106,24 @@ export default function List(props: {
 		}
 	}
 
+	function getGreatDeals() {
+		// TODO: Add HERE
+	}
+
+	function getPopularEvents() {
+		// TODO: Add HERE
+	}
+
 	return (
 		<>
 			<div className="space-y-8">
-				<div className="flex items-center justify-end">
+				<div className="flex items-center justify-end gap-2">
+					<Button fill className="bg-indigo-500" onClick={() => getGreatDeals()}>
+						Great Deals
+					</Button>
+					<Button fill className="bg-amber-500" onClick={() => getPopularEvents()}>
+						Popular Events
+					</Button>
 					<Button onClick={() => setShowFilters(true)}>Filters</Button>
 				</div>
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

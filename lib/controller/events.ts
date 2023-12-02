@@ -214,3 +214,105 @@ export async function getByEventId(event_id: number): Promise<EventGetByEventId>
 	logger.debug("Event: getByEventId", event);
 	return event;
 }
+
+export interface GreatDealsEvents {
+	event_id: number;
+	name: string;
+	description: string;
+	start_date: Date;
+	end_date: Date;
+	organizer_id: number;
+	venue_id: number;
+	category_name: string;
+	average_ticket_cost: number;
+}
+
+
+
+export async function getGreatDeals(page: number): Promise<GreatDealsEvents[]> {
+	const limit = RESULTS_PER_QUERY;
+	const offset = page * limit;
+
+	const events = await db.cached(
+		"great-deals",
+		db.sql<GreatDealsEvents[]>`
+		SELECT
+		e.event_id,
+		e.name as event_name,
+		e.description,
+		e.start_date,
+		e.end_date,
+		e.organizer_id,
+		e.venue_id
+    ec.category_name as category_name,
+    AVG(t.cost) AS average_ticket_cost,
+    (
+        SELECT
+            AVG(t2.cost)
+        FROM
+            ticket t2
+        JOIN
+            event_in_category ec2 ON t2.event_id = ec2.event_id
+        WHERE
+            ec2.category_name = ec.category_name
+        GROUP BY
+            ec2.category_name
+    ) AS average_category_cost
+		FROM
+				event e
+		JOIN
+				event_in_category ec ON e.event_id = ec.event_id
+		JOIN
+				ticket t ON e.event_id = t.event_id
+		GROUP BY
+				e.event_id, e.name, ec.category_name
+		HAVING
+				AVG(t.cost) <= (
+						SELECT
+								AVG(t2.cost)
+						FROM
+								ticket t2
+						JOIN
+								event_in_category ec2 ON t2.event_id = ec2.event_id
+						WHERE
+								ec2.category_name = ec.category_name
+						GROUP BY
+								ec2.category_name
+				)
+		LIMIT ${limit} OFFSET ${offset};
+		`,
+	);
+
+	return events;
+}
+
+export async function getPopularEvents(filterCategories: string[], page: number): Promise<Event[]> {
+	const limit = RESULTS_PER_QUERY;
+	const offset = page * limit;
+	const magicNumber = 100;
+
+	const events = await db.cached(
+		"popular-events",
+		db.sql<Event[]>`
+			SELECT DISTINCT
+				e.event_id,
+				e.name,
+				e.description,
+				e.start_date,
+				e.end_date,
+				e.organizer_id,
+				e.venue_id
+			FROM
+				event e
+			LEFT JOIN
+				ticket t ON e.event_id = t.event_id
+			WHERE t.account_id IS NOT NULL
+			GROUP BY
+				e.event_id, e.name
+			HAVING COUNT(t.ticket_id) > ${magicNumber}
+			LIMIT ${limit} OFFSET ${offset};
+		`,
+	);
+
+	return events;
+}
