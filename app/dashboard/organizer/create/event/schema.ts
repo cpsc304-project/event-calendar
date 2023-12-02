@@ -11,6 +11,7 @@ import {
 	OutputType,
 	Validation,
 	Issue,
+	number,
 } from "@/lib/form";
 import dayjs, { OpUnitType } from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -38,7 +39,11 @@ const baseCreateEventSchema = formData({
 		sameOrAfter(new Date(), "day", () => "Your event can't start in the past."),
 	],
 	end_date: [string(), toDate()],
-	categories: [array(string()), minLength(1, () => "Your event must have at least 1 category.")],
+	category_names: [
+		array(string()),
+		minLength(1, () => "Your event must have at least 1 category."),
+	],
+	venue_id: [string(), toNumber()],
 });
 
 export const createEventSchema = (input: unknown) =>

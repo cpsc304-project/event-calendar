@@ -6,6 +6,8 @@ import { useState } from "react";
 import { ChevronUpIcon } from "@heroicons/react/24/solid";
 import Button from "@/lib/components/Button";
 import CreateVenue from "./CreateVenue";
+import { useCreateStore } from "../createStore";
+import { useRouter } from "next/navigation";
 
 const venueLabel = (v: VenueWithArea) =>
 	`${v.name} [${v.venue_type_name}] - ${v.city}, ${v.province}`;
@@ -17,9 +19,13 @@ interface Props {
 }
 
 export default function SelectVenuePage(props: Props) {
+	const router = useRouter();
+
 	const [venues, setVenues] = useState(props.venues);
 	const [showCreateVenue, setShowCreateVenue] = useState(false);
 	const [value, setValue] = useState<VenueWithArea | null>(null);
+
+	const updateVenue = useCreateStore((state) => state.updateVenue);
 
 	const {
 		getRootProps,
@@ -41,6 +47,12 @@ export default function SelectVenuePage(props: Props) {
 		setVenues((venues) => [...venues, venue]);
 		setValue(venue);
 		setShowCreateVenue(false);
+	}
+
+	function onContinue() {
+		if (!value) return;
+		updateVenue(value);
+		router.push("/dashboard/organizer/create/event");
 	}
 
 	return (
@@ -78,7 +90,7 @@ export default function SelectVenuePage(props: Props) {
 						</ul>
 					)}
 				</div>
-				<Button fill className="mt-4">
+				<Button fill className="mt-4" onClick={onContinue}>
 					Continue
 				</Button>
 			</section>

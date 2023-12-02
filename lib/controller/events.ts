@@ -1,7 +1,14 @@
 import { RESULTS_PER_QUERY } from "../constants";
 import { db } from "../db";
 import { Logger } from "../logger";
-import { Event, EventGetByEventId, EventGetByOrganizerId } from "../schema";
+import {
+	Category,
+	Event,
+	EventGetByEventId,
+	EventGetByOrganizerId,
+	EventInCategory,
+	NewEventWithCategories,
+} from "../schema";
 
 export async function getFiltered(filterCategories: string[], page: number): Promise<Event[]> {
 	const limit = RESULTS_PER_QUERY;
@@ -30,32 +37,45 @@ export async function getFiltered(filterCategories: string[], page: number): Pro
 	return events;
 }
 
-export async function add({
-	description,
-	start_date,
-	end_date,
-	name,
-	venue_id,
-	organizer_id,
-}: Omit<Event, "event_id">): Promise<Event> {
+export async function createWithCategories(newEvent: NewEventWithCategories): Promise<Event> {
+	using logger = new Logger();
+
+	const { name, description, start_date, end_date, organizer_id, venue_id, category_names } =
+		newEvent;
+
 	const [event] = await db.sql<[Event?]>`
-		INSERT INTO events
+		INSERT INTO event
 			(name, description, start_date, end_date, organizer_id, venue_id)
 		VALUES
 			(${name}, ${description}, ${start_date}, ${end_date}, ${organizer_id}, ${venue_id})
 		RETURNING
-		  event_id,
-			name,
-			description,
-			start_date,
-			end_date,
-			organizer_id,
-			venue_id
+		  event_id, name, description, start_date, end_date, organizer_id, venue_id
 	`;
 
 	if (!event) {
 		throw new Error("Failed to insert an event: no event returned.");
 	}
+
+	let event_in_categories: EventInCategory[] = [];
+
+	for (const category_name of category_names) {
+		const [event_in_category] = await db.sql<[EventInCategory?]>`
+			INSERT INTO event_in_category
+				(event_id, category_name)
+			VALUES
+				(${event.event_id}, ${category_name})
+			RETURNING
+				event_id, category_name
+		`;
+
+		if (!event_in_category) {
+			throw new Error("Failed to insert a category: no category returned.");
+		}
+
+		event_in_categories.push(event_in_category);
+	}
+
+	logger.debug("events.createWithCategories", { event, event_in_categories });
 
 	return event;
 }

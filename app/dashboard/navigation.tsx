@@ -37,17 +37,14 @@ export default function Navigation() {
 				<NavLink current={selected === "awards"} href="/dashboard/awards">
 					Awards
 				</NavLink>
-				<NavLink current={selected === "user-testing"} href="/dashboard/user-testing">
-					User-Testing
+				<NavLink current={selected === "photos"} href="/dashboard/photos">
+					Photos
 				</NavLink>
 				<NavLink current={selected === "organizer"} href="/dashboard/organizer">
 					Organizer
 				</NavLink>
 				<NavLink current={selected === "account"} href="/dashboard/account">
 					Account
-				</NavLink>
-				<NavLink current={selected === "formtest"} href="/dashboard/formtest">
-					Form Test
 				</NavLink>
 			</ul>
 		</nav>

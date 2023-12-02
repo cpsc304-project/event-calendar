@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
-import { FormState } from "@/lib/form";
-import { formAction } from "@/lib/form/server";
+import { Action, formAction } from "@/lib/form/server";
 import { createEventSchema } from "./schema";
 import { Logger } from "@/lib/logger";
 import CreateEvent from "./CreateEvent";
+import { Event } from "@/lib/schema";
+import { revalidateTag } from "next/cache";
 
 export default async function Page() {
 	const { getUser } = getKindeServerSession();
@@ -22,14 +23,17 @@ export default async function Page() {
 
 	const categories = await db.categories.getAll();
 
-	async function action(state: FormState<void>, formData: FormData) {
+	const action: Action<Event> = async (state, formData) => {
 		"use server";
-		const wrappedOrganizer = organizer;
+		const organizer_id = organizer.account_id;
 		return formAction(createEventSchema, formData, async (newEvent) => {
 			using logger = new Logger();
-			logger.debug("Create event action called", { newEvent, organizer: wrappedOrganizer });
+			logger.debug("Creating event", { event: newEvent });
+			const event = await db.events.createWithCategories({ ...newEvent, organizer_id });
+			revalidateTag("all-events");
+			return event;
 		});
-	}
+	};
 
 	return <CreateEvent action={action} categories={categories} />;
 }

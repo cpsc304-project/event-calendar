@@ -29,6 +29,9 @@ export const createVenueAction: Action<VenueWithArea> = async (state, formData) 
 			street_name,
 			postal_code: normalizedPostalCode,
 		});
+
+		// TODO: add caching to db.venues.getAll and revalidateTag here
+
 		return venue;
 	});
 };
