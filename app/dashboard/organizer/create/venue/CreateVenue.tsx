@@ -11,11 +11,7 @@ import Select from "@/lib/components/form/Select";
 import { VenueType, VenueWithArea } from "@/lib/schema";
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
-import {
-	ArrowPathIcon,
-	ExclamationCircleIcon,
-	ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import Status from "@/lib/components/form/Status";
 
 const AddressAutofill = dynamic(() => import("./mapbox").then((mod) => mod.AddressAutofill), {
@@ -122,7 +118,7 @@ export default function CreateVenue({ venueTypes, mapboxApiKey, onCreate }: Prop
 					</Field>
 				</section>
 				<section className="flex items-center gap-8 bg-gray-50 px-4 py-8 md:px-8">
-					<Submit className="self-start">Create</Submit>
+					<Submit>Create</Submit>
 					{submitting && <ArrowPathIcon className="h-6 w-6 animate-spin" />}
 				</section>
 			</Form>

@@ -54,11 +54,12 @@ export interface Category {
 	description: string;
 }
 
+export type NewEventWithCategories = Omit<Event & { category_names: string[] }, "event_id">;
+
 export interface GetCategoriesByEventIdReturn {
 	category_name: string;
 	event_id: number;
 	description: string;
-	
 }
 
 export interface EventInCategory {
@@ -166,7 +167,7 @@ export interface ReviewGetAllByEventId {
 export interface AwardedGuest {
 	account_id: number;
 	is_ubc_student: boolean;
-	kinde_id: string;	
+	kinde_id: string;
 	first_name?: string;
 	last_name?: string;
 }
