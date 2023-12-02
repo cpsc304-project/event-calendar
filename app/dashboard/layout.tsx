@@ -12,7 +12,7 @@ const LoggedInToolbar = async () => {
 
 	return (
 		<div className="flex items-center gap-4">
-			<h1>Hi {user?.given_name ?? "unknown"}!</h1>
+			<h1 className="hidden sm:block">Hi {user?.given_name ?? "unknown"}!</h1>
 			<LogoutLink>
 				<Button>Sign out</Button>
 			</LogoutLink>
