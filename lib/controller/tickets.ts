@@ -28,7 +28,7 @@ export async function insertNTickets(
 	`;
 
 	if (!tickets) {
-		throw new Error("Failed to insert organizer, no organizer returned.");
+		throw new Error("Failed to insert n tickets");
 	}
 
 	logger.debug("Inserted Organizer", tickets);
