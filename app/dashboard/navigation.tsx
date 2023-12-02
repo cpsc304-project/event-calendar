@@ -1,5 +1,6 @@
 "use client";
 
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { PropsWithChildren } from "react";
@@ -19,6 +20,8 @@ const NavLink = (props: PropsWithChildren<{ current?: boolean | undefined; href:
 };
 
 export default function Navigation() {
+	const { isAuthenticated } = useKindeBrowserClient();
+
 	const selected = useSelectedLayoutSegment();
 
 	return (
@@ -34,9 +37,11 @@ export default function Navigation() {
 				<NavLink current={selected === "photos"} href="/dashboard/photos">
 					Photos
 				</NavLink>
-				<NavLink current={selected === "organizer"} href="/dashboard/organizer">
-					Organizer
-				</NavLink>
+				{isAuthenticated ? (
+					<NavLink current={selected === "organizer"} href="/dashboard/organizer">
+						Organizer
+					</NavLink>
+				) : null}
 				<NavLink current={selected === "account"} href="/dashboard/account">
 					Account
 				</NavLink>

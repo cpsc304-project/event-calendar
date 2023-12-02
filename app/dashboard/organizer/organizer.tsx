@@ -39,7 +39,7 @@ export default function Organizer(props: {
 							<div className="text-2xl">Personal Info</div>
 							<div className="mb-2 grid grid-cols-5 gap-2 sm:grid-cols-10">
 								<div className="col-span-4">
-									<div className="py-auto group relative text-base ">
+									<div className="group relative text-base ">
 										<div className="py-1.5">
 											Organizer Name
 											<svg

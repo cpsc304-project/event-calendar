@@ -8,9 +8,11 @@ export function EventCard(props: { event?: Event; createLink?: string }) {
 				<EventCardCreate createLink={props.createLink} />
 			) : props.event ? (
 				<Link href={`/dashboard/organizer/edit/event/${props.event.event_id}`}>
-					<div className="h-full w-full rounded-md border bg-indigo-200 p-4 lg:p-5">
-						<h4 className="font-bold">{props.event.name}</h4>
-						<p>{props.event.description}</p>
+					<div className="h-40 w-full rounded-md border bg-indigo-200 p-4 lg:p-5">
+						<div className="w-full h-full overflow-hidden ">
+							<h4 className="font-bold">{props.event.name}</h4>
+							<p className="">{props.event.description}</p>
+						</div>
 					</div>
 				</Link>
 			) : null}
