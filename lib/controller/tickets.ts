@@ -136,3 +136,16 @@ export async function getInfoByAccountId(account_id: number): Promise<TicketInfo
 	logger.debug("Tickets for account: " + account_id, tickets);
 	return tickets;
 }
+
+
+export async function getByAccountAndEventId(account_id: number, event_id: number): Promise<Ticket[]> {
+	using logger = new Logger();
+	const tickets = await db.sql<Ticket[]>`
+	SELECT *
+	FROM ticket
+	WHERE account_id = ${account_id} AND event_id = ${event_id};
+	`;
+
+	logger.debug("Tickets for account, event: " + account_id + " " + event_id, tickets);
+	return tickets;
+}

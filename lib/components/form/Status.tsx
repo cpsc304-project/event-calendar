@@ -11,7 +11,7 @@ export default function Status({ error, invalid }: Props) {
 			{error && (
 				<span className="flex items-center gap-2 text-red-500">
 					<ExclamationCircleIcon className="h-5 w-5" />
-					<p>Something went wrong.</p>
+					<p>{ error }</p>
 				</span>
 			)}
 			{invalid && (

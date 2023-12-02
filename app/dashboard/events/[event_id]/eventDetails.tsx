@@ -5,9 +5,18 @@ import { ReviewsCard } from "@/lib/components/review-card";
 import {
 	EventGetByEventId,
 	GetCategoriesByEventIdReturn,
+	Review,
 	ReviewGetAllByEventId,
 } from "@/lib/schema";
 import Link from "next/link";
+import { useForm } from "@/lib/form/client";
+import { createReviewSchema } from "./schema";
+import NumberField from "@/lib/components/form/NumberField";
+import Submit from "@/lib/components/form/Submit";
+import { Action } from "@/lib/form";
+import TextBox from "@/lib/components/form/TextBox";
+import Status from "@/lib/components/form/Status";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 export function formatDate(date: Date | string): string {
 	const options: Intl.DateTimeFormatOptions = {
@@ -23,7 +32,13 @@ export function EventDetails(props: {
 	event: EventGetByEventId;
 	reviews: ReviewGetAllByEventId[];
 	categories: GetCategoriesByEventIdReturn[];
+	action: Action<Review>;
 }) {
+	const { Form, Field, error, invalid, submitting, result } = useForm(
+		createReviewSchema,
+		props.action,
+	);
+
 	return (
 		<div className="rounded bg-indigo-50 p-4">
 			<div className="mb-3 text-4xl">
@@ -79,13 +94,34 @@ export function EventDetails(props: {
 					</p>
 				</div>
 			</div>
-			<div className="p-4">
+			<hr className="my-2" />
+			<div className="">
 				<h3 className="mt-3 text-2xl font-bold leading-relaxed">Reviews</h3>
-				<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 					{props.reviews.map((review) => (
 						<ReviewsCard key={review.review_id} review={review} />
 					))}
 				</div>
+				<p className="my-2 text-base">Add your own review (must be a ticket holder):</p>
+				<Form>
+					<Status error={error} invalid={invalid}></Status>
+					<Field for="rating">
+						{(args) => (
+							<NumberField args={args} min={1} max={5}>
+								Rating
+							</NumberField>
+						)}
+					</Field>
+					<Field for="reviewText">
+						{(args) => (
+							<TextBox args={args} minLength={1}>
+								Review
+							</TextBox>
+						)}
+					</Field>
+					<Submit>Submit</Submit>
+					{submitting && <ArrowPathIcon className="h-6 w-6 animate-spin" />}
+				</Form>
 			</div>
 		</div>
 	);

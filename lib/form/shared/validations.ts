@@ -16,3 +16,9 @@ export const minValue = (n: number, error?: (input: number) => Issue): Validatio
 		(num) => num >= n,
 		(num) => error?.(num) ?? `Value is too low, ${num} < ${n}.`,
 	);
+
+export const maxValue = (n: number, error?: (input: number) => Issue): Validation<number> =>
+basicValidation(
+	(num) => num <= n,
+	(num) => error?.(num) ?? `Value is too high, ${num} > ${n}.`,
+);
