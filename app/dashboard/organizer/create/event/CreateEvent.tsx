@@ -34,7 +34,7 @@ function MultiSelect<T>({
 	return (
 		<fieldset>
 			<legend className="mb-1 block font-semibold">{label}</legend>
-			<div className="grid grid-rows-2 gap-4 md:grid-flow-col md:justify-start">
+			<div className="flex flex-col flex-wrap gap-4 md:flex-row">
 				{choices.map((choice) => (
 					<div key={value(choice)}>
 						<label>
@@ -155,7 +155,7 @@ export default function CreateEvent({ action, categories }: Props) {
 					<Field for="venue_id">
 						{(args) => <input {...args.props} type="hidden" value={venue.venue_id} />}
 					</Field>
-					<section className="flex items-center gap-8 bg-gray-50 py-8 md:px-8">
+					<section className="flex items-center gap-8 bg-gray-50 px-4 py-8 md:px-8">
 						<Submit>Create</Submit>
 						{submitting && <ArrowPathIcon className="h-6 w-6 animate-spin" />}
 					</section>

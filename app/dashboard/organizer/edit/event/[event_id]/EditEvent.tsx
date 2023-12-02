@@ -37,7 +37,7 @@ function MultiSelect<T>({
 	return (
 		<fieldset>
 			<legend className="mb-1 block font-semibold">{label}</legend>
-			<div className="grid grid-flow-col grid-rows-2 justify-start gap-4">
+			<div className="flex flex-col flex-wrap gap-4 md:flex-row">
 				{choices.map((choice) => (
 					<div key={value(choice)}>
 						<label>
@@ -63,8 +63,8 @@ function CategoryChip({ category }: { category: Category }) {
 	return (
 		<div
 			className={twMerge(
-				"flex h-36 w-48 flex-shrink-0 flex-col justify-between rounded-xl border p-4 text-start hover:border-gray-800",
-				"transform transition-all active:scale-95",
+				"flex h-24 w-full flex-shrink-0 flex-col justify-between rounded-xl border p-4 text-start hover:border-gray-800 md:h-36 md:w-48",
+				"transform transition-transform active:scale-95",
 				"peer-checked:border-2 peer-checked:border-gray-800 peer-checked:bg-gray-50",
 			)}
 		>
@@ -94,7 +94,7 @@ export default function EditEvent({ event, categories, action }: Props) {
 		<div className="space-y-4">
 			<div className="mb-4 text-4xl">Edit Your Event</div>
 			<div className="divide-y rounded-lg border">
-				<section className="p-8">
+				<section className="flex flex-col items-start gap-4 px-4 py-8 md:px-8">
 					<h3 className="font-semibold">Venue</h3>
 					<div className="rounded-lg border p-4">
 						<h4 className="text-base font-semibold">{event.venue.name}</h4>
@@ -105,49 +105,65 @@ export default function EditEvent({ event, categories, action }: Props) {
 					</div>
 				</section>
 				<Form className="divide-y">
-					<section className="p-8">
+					<section className="flex flex-col gap-4 px-4 py-8 md:px-8">
 						<Status error={error} invalid={invalid} />
 						<Field for="event_id">
 							{(args) => <input {...args.props} type="hidden" value={event.event_id} />}
 						</Field>
 						<Field for="name">
 							{(args) => (
-								<TextField args={args} defaultValue={event.name}>
-									Event name
+								<TextField args={args} defaultValue={event.name} className="md:w-1/2">
+									Name
 								</TextField>
 							)}
 						</Field>
 						<Field for="description">
 							{(args) => (
 								<TextBox args={args} defaultValue={event.description}>
-									{" "}
-									Event description
+									Description
 								</TextBox>
 							)}
 						</Field>
-						<Field for="ticket_count">
-							{(args) => (
-								<NumberField args={args} defaultValue={event.ticket_count.toString()}>
-									Number of attendees
-								</NumberField>
-							)}
-						</Field>
+						<span className="grid gap-4 md:grid-cols-3">
+							<Field for="ticket_count">
+								{(args) => (
+									<NumberField args={args} defaultValue={event.ticket_count.toString()}>
+										Number of tickets
+									</NumberField>
+								)}
+							</Field>
+							<Field for="ticket_cost">
+								{(args) => (
+									<NumberField args={args} step={0.01}>
+										Ticket price
+									</NumberField>
+								)}
+							</Field>
+						</span>
 						<Field for="start_date">
 							{(args) => (
-								<DateField args={args} defaultValue={toFormDateString(event.start_date)}>
+								<DateField
+									args={args}
+									defaultValue={toFormDateString(event.start_date)}
+									className="md:w-1/4"
+								>
 									Start date
 								</DateField>
 							)}
 						</Field>
 						<Field for="end_date">
 							{(args) => (
-								<DateField args={args} defaultValue={toFormDateString(event.end_date)}>
+								<DateField
+									args={args}
+									defaultValue={toFormDateString(event.end_date)}
+									className="md:w-1/4"
+								>
 									End date
 								</DateField>
 							)}
 						</Field>
 					</section>
-					<section className="p-8">
+					<section className="px-4 py-8 md:px-8">
 						<Field for="category_names">
 							{(args) => (
 								<MultiSelect
@@ -155,13 +171,13 @@ export default function EditEvent({ event, categories, action }: Props) {
 									choices={categories}
 									defaultChoices={event.categories}
 									value={(c) => c.category_name}
-									label="Event categories"
+									label="Categories"
 									choiceLabel={(category) => <CategoryChip category={category} />}
 								/>
 							)}
 						</Field>
 					</section>
-					<section className="flex items-center gap-8 bg-gray-50 p-8">
+					<section className="flex items-center gap-8 bg-gray-50 px-4 py-8 md:px-8">
 						<Submit>Save</Submit>
 						{submitting && <ArrowPathIcon className="h-6 w-6 animate-spin" />}
 					</section>

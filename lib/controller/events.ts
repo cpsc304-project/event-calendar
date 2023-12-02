@@ -110,12 +110,14 @@ export async function update({
 	name,
 	description,
 	ticket_count,
+	ticket_cost,
 	start_date,
 	end_date,
 	category_names,
 }: Partial<
 	Omit<Event, "venue_id" | "organizer_id"> & {
 		ticket_count: number;
+		ticket_cost: number;
 		category_names: string[];
 	}
 > &
@@ -163,8 +165,16 @@ export async function update({
 		throw new Error("Was unable to update event");
 	}
 
-	if (ticket_count !== undefined) {
-		await insertNTickets(updatedEvent.event_id, 7000, ticket_count - existingEvent.ticket_count);
+	if (ticket_count !== undefined && ticket_cost !== undefined) {
+		const costInCents =
+			parseInt(ticket_cost.toString().split(".")[0], 10) * 100 +
+			parseInt(ticket_cost.toString().split(".")[1], 10);
+
+		await insertNTickets(
+			updatedEvent.event_id,
+			costInCents,
+			ticket_count - existingEvent.ticket_count,
+		);
 	}
 
 	if (category_names !== undefined) {

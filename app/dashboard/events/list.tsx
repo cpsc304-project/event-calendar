@@ -41,14 +41,12 @@ function useSessionStorage<T>(key: string, initialValue: T) {
 
 function EventCard({ event }: { event: Event }) {
 	return (
-		<Link href={`/dashboard/events/${event.event_id}`}>
-			<div className="overflow-hidden rounded-md border">
-				<div className="flex aspect-video">
-					<div className="aspect-video w-96 flex-shrink bg-gray-300"></div>
-				</div>
+		<Link href={`/dashboard/events/${event.event_id}`} className="h-96 w-80">
+			<div className="h-full rounded-md border">
+				<div className="aspect-[4/3] bg-gray-300"></div>
 				<div className="p-4">
-					<h2 className="text-lg font-semibold">{event.name}</h2>
-					<p className="text-sm">{event.description}</p>
+					<h2 className="h-8 overflow-hidden text-base font-semibold">{event.name}</h2>
+					<p className="h-20 overflow-hidden text-sm">{event.description}</p>
 				</div>
 			</div>
 		</Link>
@@ -179,12 +177,12 @@ export default function List(props: {
 					</Button>
 					<Button onClick={() => setShowFilters(true)}>Filters</Button>
 				</div>
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<div className="grid justify-center gap-4 [grid-template-columns:repeat(auto-fit,20rem)]">
 					{events.map((event) => (
 						<EventCard key={event.event_id} event={event} />
 					))}
 				</div>
-				<div className="flex items-center justify-center">{status()}</div>
+				<div className="flex flex-col items-center">{status()}</div>
 			</div>
 			{showFilters && (
 				<div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50 p-8 backdrop-blur-[2px]">
