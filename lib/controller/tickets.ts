@@ -22,6 +22,7 @@ export async function insertNTickets(
 	INSERT INTO ticket (event_id, account_id, cost)
 	SELECT
     ${event_id} AS event_id,
+		NULL AS account_id,
     ${cost} AS cost
 	FROM generate_series(1, ${number_of_tickets})
 	RETURNING *;
@@ -90,12 +91,17 @@ export async function setAccount(
 	account_id: number,
 ): Promise<Ticket> {
 	using logger = new Logger();
+
+	logger.debug("Set Account Params", [ticket_id, event_id, account_id]);
+
 	const [ticket] = await db.sql<[Ticket]>`
-	UPDATE ticket
-	SET account_id = ${account_id}
-	WHERE ticket_id = ${ticket_id} AND event_id = ${event_id}
-	RETURNING *;
+		UPDATE ticket
+		SET account_id = ${account_id}
+		WHERE ticket_id = ${ticket_id} AND event_id = ${event_id}
+		RETURNING *
 	`;
+
+	logger.debug("TICKET", ticket);
 
 	if (!ticket) {
 		throw new Error("Failed to set account, no ticket returned.");
@@ -123,8 +129,8 @@ export async function getInfoByAccountId(account_id: number): Promise<any[]> {
 	const tickets = await db.sql<any[]>`
 	SELECT *
 	FROM ticket
-	WHERE account_id = ${account_id}
-	JOIN event ON ticket.event_id = event.event_id;
+	JOIN event e ON ticket.event_id = e.event_id
+	WHERE account_id = ${account_id};
 	`;
 
 	logger.debug("Tickets for account: " + account_id, tickets);

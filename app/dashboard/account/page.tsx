@@ -5,15 +5,29 @@ import { Ticket } from "@/lib/schema";
 import Link from "next/link";
 
 export default async function Page() {
+	function toHumanDate(date: Date) {
+		return new Date(date).toLocaleDateString("en-US", {
+			weekday: "long",
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		});
+	}
+
 	function generateEventTicketCard(ticket: any) {
+		console.log(ticket)
 		return (
-			<div className="w-full border-2">
-				<div>{ticket.event_name}</div>
+			<Link href={`/dashboard/events/${ticket.event_id}`}>
+			<div className="w-full overflow-hidden border-2 rounded p-3 bg-indigo-100">
+				<div className="text-lg text-center">ADMIT ONE</div>
+				<div className="text-xl">{ticket.name}</div>
 				<div>
-					{ticket.start_date} - {ticket.end_date}
+					{toHumanDate(ticket.start_date)} - {toHumanDate(ticket.end_date)}
 				</div>
-				<div>{ticket.event_description}</div>
+				<div>{ticket.description}</div>
 			</div>
+			</Link>
+
 		);
 	}
 
@@ -51,7 +65,7 @@ export default async function Page() {
 	const tickets = await db.tickets.getInfoByAccountId(user.account_id);
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+		<div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 			{tickets.map((ticket) => generateEventTicketCard(ticket))}
 		</div>
 	);

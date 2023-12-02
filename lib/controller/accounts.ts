@@ -90,3 +90,24 @@ export async function getGuest(accountId: number): Promise<Guest | undefined> {
 
 	return guest;
 }
+
+export async function insertGuest(account_id: number, is_ubc_student: boolean): Promise<Guest> {
+	using logger = new Logger();
+
+	const [guest] = await db.sql<[Guest?]>`
+		INSERT INTO guest
+			(account_id, is_ubc_student)
+		VALUES
+			(${account_id}, ${is_ubc_student})
+		RETURNING
+		account_id, is_ubc_student
+	`;
+
+	if (!guest) {
+		throw new Error("Failed to insert guest, no guest returned.");
+	}
+
+	logger.debug("Inserted Guest", guest);
+
+	return guest;
+}
