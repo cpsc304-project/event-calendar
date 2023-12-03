@@ -92,23 +92,9 @@ export default async function Page(props: { params: { event_id: string } }) {
 	}
 
 	if (discountedTicket) {
-		return <GetTicketPage event={event} ticket_info={ticket} isDiscounted={true} user={user} />;
+		return <GetTicketPage event={event} ticket_info={discountedTicket} isDiscounted={true} user={user} numberAvailable={availableTickets}/>;
 	} else {
-		return <GetTicketPage event={event} ticket_info={ticket} isDiscounted={false} user={user} />;
+		return <GetTicketPage event={event} ticket_info={ticket} isDiscounted={false} user={user} numberAvailable={availableTickets}/>;
 	}
 
-	// if (true) {
-	// 	return (
-	// 		<GetTicketPage
-	// 			event={event}
-	// 			ticket_info={ticket}
-	// 			isDiscounted={true}
-	// 			user={user}
-	// 		/>
-	// 	);
-	// } else {
-	// 	return (
-	// 		<GetTicketPage event={event} ticket_info={regularTicket} isDiscounted={false} user={user} />
-	// 	);
-	// }
 }

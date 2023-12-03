@@ -84,7 +84,7 @@ export function EventDetails(props: {
 				</div>
 
 				<div className="mb-2">
-					<strong>Tickets Available</strong>
+					<strong>Tickets</strong>
 					<p>
 						<Link href={`/dashboard/events/${props.event.event_id}/get-tickets`} passHref>
 							<button className="m-2 rounded bg-indigo-500 px-4 py-2 text-white">

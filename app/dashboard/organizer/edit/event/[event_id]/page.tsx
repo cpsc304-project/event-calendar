@@ -3,11 +3,11 @@ import { Action } from "@/lib/form";
 import { FormError, formAction } from "@/lib/form/server";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { notFound, redirect } from "next/navigation";
-import { editEventSchema } from "./schema";
+import { createDiscountSchema, editEventSchema } from "./schema";
 import EditEvent from "./EditEvent";
-import { EventWithVenueAndAreaAndCategories } from "@/lib/schema";
+import { DiscountedTicket, EventWithVenueAndAreaAndCategories } from "@/lib/schema";
 import { Event } from "@/lib/schema";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { Logger } from "next-axiom";
 
 function arrayShallowEqual<T>(a: T[], b: T[]): boolean {
@@ -36,8 +36,10 @@ export default async function Page(props: Props) {
 	}
 
 	let event: EventWithVenueAndAreaAndCategories;
+	let ticketsAvailable: number;
 	try {
 		event = await db.events.getWithVenueAndAreaAndCategories(Number(props.params.event_id));
+		ticketsAvailable = await db.tickets.getNumberAvailable(event.event_id);
 	} catch {
 		notFound();
 	}
@@ -83,5 +85,41 @@ export default async function Page(props: Props) {
 		});
 	};
 
-	return <EditEvent event={event} categories={categories} action={action} />;
+	const createDiscountsAction: Action<DiscountedTicket[]> = async (state, formData) => {
+		"use server";
+		const capturedEvent = event;
+		const capturedNumberAvailable = ticketsAvailable;
+		return await formAction(createDiscountSchema, formData, async (data) => {
+			const logger = new Logger();
+			try {
+				if (data.amountToDiscount > capturedNumberAvailable) {
+					throw new FormError(
+						"You cannot discount more tickets than are available",
+						"amountToDiscount",
+					);
+				}
+
+				const discountedTickets = await db.tickets.setNDiscounts(
+					capturedEvent.event_id,
+					data.amountToDiscount,
+					data.discount,
+					data.promo_code,
+				);
+				revalidatePath(`/dashboard/events/${capturedEvent.event_id}/edit`)
+				return discountedTickets;
+			} finally {
+				logger.flush();
+			}
+		});
+	};
+
+	return (
+		<EditEvent
+			event={event}
+			categories={categories}
+			action={action}
+			createDiscountsAction={createDiscountsAction}
+			ticketsAvailable={ticketsAvailable}
+		/>
+	);
 }

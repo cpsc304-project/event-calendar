@@ -11,6 +11,15 @@ export const minLength = (
 		(input) => error?.(input) ?? `Input is too short, ${input.length} < ${n}.`,
 	);
 
+export const maxLength = (
+	n: number,
+	error?: (input: { length: number }) => Issue,
+): Validation<{ length: number }> =>
+	basicValidation(
+		(input) => input.length <= n,
+		(input) => error?.(input) ?? `Input is too long, ${input.length} > ${n}.`,
+	);
+
 export const minValue = (n: number, error?: (input: number) => Issue): Validation<number> =>
 	basicValidation(
 		(num) => num >= n,
@@ -18,7 +27,7 @@ export const minValue = (n: number, error?: (input: number) => Issue): Validatio
 	);
 
 export const maxValue = (n: number, error?: (input: number) => Issue): Validation<number> =>
-basicValidation(
-	(num) => num <= n,
-	(num) => error?.(num) ?? `Value is too high, ${num} > ${n}.`,
-);
+	basicValidation(
+		(num) => num <= n,
+		(num) => error?.(num) ?? `Value is too high, ${num} > ${n}.`,
+	);

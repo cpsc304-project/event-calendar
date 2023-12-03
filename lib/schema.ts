@@ -80,9 +80,16 @@ export interface Ticket {
 	ticket_id: string;
 	event_id: number;
 	account_id: number | null;
-	cost: number;
-	discount?: number;
+	cost: string;
+	discount?: string;
 	promo_code?: string;
+}
+
+export interface DiscountedTicket {
+	ticket_id: string;
+	event_id: number;
+	discount: number;
+	promo_code: string;
 }
 
 export type TicketInfo = Ticket & Event;

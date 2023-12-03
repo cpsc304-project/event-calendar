@@ -9,9 +9,20 @@ export function GetTicketPage(props: {
 	ticket_info: Ticket | undefined;
 	isDiscounted: boolean;
 	user: Account;
+	numberAvailable: number;
 }) {
 	const [disabled, setDisabled] = useState(false);
 	const [isPending, startTransition] = useTransition();
+	let ticketPriceCents = 0;
+	if (props.ticket_info) {
+		ticketPriceCents = parseInt(props.ticket_info?.cost);
+		console.log(ticketPriceCents);
+		if (props.isDiscounted) {
+			ticketPriceCents =
+				(parseInt(props.ticket_info?.cost) * (100 - parseInt(props.ticket_info?.discount!))) /
+				100;
+		}
+	}
 
 	function buyTicket() {
 		setDisabled(true);
@@ -20,7 +31,7 @@ export function GetTicketPage(props: {
 			await buyTicketForAccountId(
 				props.user.account_id,
 				props.ticket_info!.ticket_id,
-				props.event.event_id
+				props.event.event_id,
 			);
 			redirect("/dashboard/events/[event_id]/get-tickets/success");
 		});
@@ -68,10 +79,38 @@ export function GetTicketPage(props: {
 				)}
 				{props.ticket_info && (
 					<div className=" flex flex-col">
-						<div className="inline-flex gap-3 text-base">
-							<div>Ticket Price</div>
-							<div className="text-indigo-600">$ {props.ticket_info?.cost / 100} CAD</div>
+						<div className="my-2 text-lg">
+							There are {props.numberAvailable} tickets available for purchase
 						</div>
+						{props.isDiscounted && (
+							<div>
+								<div className="mb-2 w-fit rounded border bg-indigo-200 px-5 py-3">
+									<h3 className="text-base">
+										Hooray! There is a discounted ticket with promo code: [
+										{props.ticket_info.promo_code}]
+									</h3>
+								</div>
+								<div className="text-sm">Promo codes are automatically applied</div>
+								<div className="inline-flex gap-3 text-base">
+									<div>Ticket Price:</div>
+									<div className="text-red-600 line-through">
+										$ {parseInt(props.ticket_info?.cost) / 100} CAD
+									</div>
+									<div className="text-indigo-600">
+										{(Math.round (ticketPriceCents)/100).toFixed(2)} CAD
+									</div>
+								</div>
+							</div>
+						)}
+						{!props.isDiscounted && (
+							<div className="inline-flex gap-3 text-base">
+								<div>Ticket Price:</div>
+								<div className="text-indigo-600">
+									$ {parseInt(props.ticket_info?.cost) / 100} CAD
+								</div>
+							</div>
+						)}
+
 						<BuyTicketButton account={props.user}></BuyTicketButton>
 					</div>
 				)}

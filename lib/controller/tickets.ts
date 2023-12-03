@@ -7,7 +7,7 @@
 
 import { db } from "../db";
 import { Logger } from "next-axiom";
-import { Ticket, TicketInfo } from "../schema";
+import { DiscountedTicket, Ticket, TicketInfo } from "../schema";
 
 export async function insertNTickets(
 	event_id: number,
@@ -48,7 +48,6 @@ export async function getNumberAvailable(event_id: number): Promise<number> {
 		const [ticketNumber] = await db.sql<[{ tickets_available: number }?]>`
 			SELECT COUNT(ticket.ticket_id)::int AS tickets_available
 			FROM ticket
-			LEFT JOIN guest ON ticket.account_id = guest.account_id
 			WHERE ticket.event_id = ${event_id}
 			AND ticket.account_id IS NULL;
 	`;
@@ -71,7 +70,6 @@ export async function getAvailableOne(event_id: number): Promise<Ticket | undefi
 		const [ticket] = await db.sql<[Ticket?]>`
 		SELECT *
 		FROM ticket
-		LEFT JOIN guest ON ticket.account_id = guest.account_id
 		WHERE ticket.event_id = ${event_id}
 		AND ticket.account_id IS NULL;
 	`;
@@ -91,7 +89,6 @@ export async function getAvailableDiscountedOne(event_id: number): Promise<Ticke
 			SELECT *
 			FROM discounted_ticket
 			JOIN ticket ON discounted_ticket.ticket_id = ticket.ticket_id
-			LEFT JOIN guest ON ticket.account_id = guest.account_id
 			WHERE ticket.event_id = ${event_id}
 			AND ticket.account_id IS NULL;
 		`;
@@ -180,6 +177,54 @@ export async function getByAccountAndEventId(
 		`;
 
 		logger.debug("Tickets for account", { account_id, event_id, tickets });
+
+		return tickets;
+	} finally {
+		logger.flush();
+	}
+}
+
+// CREATE TABLE discounted_ticket (
+// 	ticket_id UUID,
+// 	event_id INTEGER,
+// 	discount NUMERIC(3) NOT NULL,
+// 	promo_code TEXT NOT NULL,
+// 	PRIMARY KEY (ticket_id, event_id),
+// 	FOREIGN KEY (ticket_id, event_id)
+// 			REFERENCES ticket(ticket_id, event_id)
+// 			ON UPDATE CASCADE
+// 			ON DELETE CASCADE
+// );
+
+/**
+ * Number to discount must be less than or equal to the number of tickets available
+ * @param */
+export async function setNDiscounts(
+	event_id: number,
+	numberToDiscount: number,
+	discount: number,
+	promoCode: string,
+) {
+	const logger = new Logger();
+	logger.info("Discounting Tickets")
+	try {
+		const tickets = await db.sql<DiscountedTicket[]>`
+		INSERT INTO discounted_ticket (ticket_id, event_id, discount, promo_code)
+		SELECT
+				t.ticket_id,
+				t.event_id,
+				${discount} AS discount,
+				${promoCode} AS promo_code
+		FROM
+				ticket t
+		WHERE
+				t.event_id = ${event_id}
+				AND t.account_id IS NULL
+		LIMIT ${numberToDiscount}
+		RETURNING *;
+		`;
+
+		logger.debug("Now Discounted: ", tickets);
 
 		return tickets;
 	} finally {

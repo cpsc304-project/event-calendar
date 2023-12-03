@@ -11,6 +11,8 @@ import {
 	OutputType,
 	Validation,
 	Issue,
+	maxValue,
+	maxLength,
 } from "@/lib/form";
 import dayjs, { OpUnitType } from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
@@ -68,3 +70,32 @@ export const editEventSchema = (input: unknown) =>
 			}),
 		),
 	);
+
+// ticket_id UUID,
+// event_id INTEGER,
+// discount NUMERIC(3) NOT NULL,
+// promo_code TEXT NOT NULL,
+// PRIMARY KEY (ticket_id, event_id),
+// FOREIGN KEY (ticket_id, event_id)
+// 		REFERENCES ticket(ticket_id, event_id)
+// 		ON UPDATE CASCADE
+// 		ON DELETE CASCADE
+
+export const createDiscountSchema = formData({
+	discount: [
+		string(),
+		toNumber(),
+		minValue(0, () => "Discount must be a number 0-100"),
+		maxValue(100, () => "Discount must be a number 0-100"),
+	],
+	promo_code: [
+		string(),
+		minLength(1, () => "Promos code must be at least 1 character long"),
+		maxLength(20, () => "Promo code must be 20 characters or less."),
+	],
+	amountToDiscount: [
+		string(),
+		toNumber(),
+		minValue(1, () => "Amount of tickets to add discounts to must be at least 1"),
+	],
+});

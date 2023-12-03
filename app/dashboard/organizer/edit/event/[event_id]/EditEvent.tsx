@@ -1,9 +1,15 @@
 "use client";
 
 import { InputArgs, useForm } from "@/lib/form/client";
-import { Category, Event, EventWithVenueAndAreaAndCategories } from "@/lib/schema";
+import {
+	Category,
+	DiscountedTicket,
+	Event,
+	EventWithVenueAndAreaAndCategories,
+	Ticket,
+} from "@/lib/schema";
 import { ReactNode, useEffect } from "react";
-import { editEventSchema } from "./schema";
+import { createDiscountSchema, editEventSchema } from "./schema";
 import { twMerge } from "tailwind-merge";
 import { Action } from "@/lib/form";
 import TextField from "@/lib/components/form/TextField";
@@ -78,11 +84,21 @@ interface Props {
 	event: EventWithVenueAndAreaAndCategories;
 	categories: Category[];
 	action: Action<Event>;
+	createDiscountsAction: Action<DiscountedTicket[]>;
+	ticketsAvailable: number;
 }
 
-export default function EditEvent({ event, categories, action }: Props) {
+export default function EditEvent({
+	event,
+	categories,
+	action,
+	createDiscountsAction,
+	ticketsAvailable
+
+}: Props) {
 	const router = useRouter();
 	const { Form, Field, submitting, error, invalid, result } = useForm(editEventSchema, action);
+	const createDiscountForm = useForm(createDiscountSchema, createDiscountsAction);
 
 	useEffect(() => {
 		if (result) {
@@ -177,11 +193,50 @@ export default function EditEvent({ event, categories, action }: Props) {
 							)}
 						</Field>
 					</section>
-					<section className="flex items-center gap-8 bg-gray-50 px-4 py-8 md:px-8">
-						<Submit>Save</Submit>
+					<section className="rounded bg-gray-50 py-4">
+						<Submit className="mx-4 my-4 md:mx-8">Save</Submit>
 						{submitting && <ArrowPathIcon className="h-6 w-6 animate-spin" />}
 					</section>
 				</Form>
+			</div>
+
+			<hr className="my-4" />
+			<div className="mb-4 mt-3 md:mt-5 text-3xl">Generate discounted tickets</div>
+
+			<div className="rounded border">
+				<div className=" bold mt-3 px-4 text-base md:px-8">
+					You have {ticketsAvailable} tickets out of {event.ticket_count} available to add discounts
+					to
+				</div>
+
+				<createDiscountForm.Form className="divide-y">
+					<section className="flex flex-col gap-4 px-4 py-8 md:px-8">
+						<createDiscountForm.Field for="amountToDiscount">
+							{(args) => (
+								<NumberField args={args} min={1} max={ticketsAvailable} placeholder="1">
+									Number of tickets to discount
+								</NumberField>
+							)}
+						</createDiscountForm.Field>
+						<createDiscountForm.Field for="discount">
+							{(args) => (
+								<NumberField args={args} min={1} max={ticketsAvailable} placeholder="0-100">
+									Discount to apply (in percent)
+								</NumberField>
+							)}
+						</createDiscountForm.Field>
+						<createDiscountForm.Field for="promo_code">
+							{(args) => (
+								<TextField args={args} placeholder="THANKYOU10">
+									Promo code
+								</TextField>
+							)}
+						</createDiscountForm.Field>
+					</section>
+					<section className="rounded bg-gray-50 py-4">
+						<Submit className="mx-4 my-4 md:mx-8">Generate</Submit>
+					</section>
+				</createDiscountForm.Form>
 			</div>
 		</div>
 	);
