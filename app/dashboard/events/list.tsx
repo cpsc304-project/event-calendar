@@ -20,12 +20,12 @@ import FiltersModal from "./FiltersModal";
 
 function EventCard({ event }: { event: Event }) {
 	return (
-		<Link href={`/dashboard/events/${event.event_id}`} className="h-96 w-80">
-			<div className="h-full rounded-md border">
-				<div className="aspect-[4/3] bg-gray-300"></div>
-				<div className="p-4">
-					<h2 className="h-8 overflow-hidden text-base font-semibold">{event.name}</h2>
-					<p className="h-20 overflow-hidden text-sm">{event.description}</p>
+		<Link href={`/dashboard/events/${event.event_id}`}>
+			<div className="space-y-2">
+				<div className="aspect-square rounded-xl bg-gray-300"></div>
+				<div className="space-y-1">
+					<h2 className="h-5 overflow-hidden font-semibold">{event.name}</h2>
+					<p className="h-8 overflow-hidden text-xs text-gray-500">{event.description}</p>
 				</div>
 			</div>
 		</Link>
@@ -94,8 +94,8 @@ export default function List({ prefetch, allCategories }: Props) {
 
 	return (
 		<>
-			<div className="space-y-8">
-				<span className="flex items-center justify-between">
+			<div className="space-y-4">
+				<span className="flex justify-start">
 					<span className="grid auto-cols-fr grid-flow-col justify-items-center gap-2">
 						<Button
 							className={twMerge(
@@ -142,12 +142,8 @@ export default function List({ prefetch, allCategories }: Props) {
 							<p className="text-xs font-medium">Custom</p>
 						</Button>
 					</span>
-					<Button onClick={() => setShowFilters(true)} className="p-3">
-						<AdjustmentsHorizontalIcon className="h-5 w-5" />
-						<p className="text-xs font-medium">Filters</p>
-					</Button>
 				</span>
-				<div className="grid justify-center gap-4 [grid-template-columns:repeat(auto-fit,20rem)]">
+				<div className="grid justify-center gap-6 [grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))]">
 					{events.map((event) => (
 						<EventCard key={event.event_id} event={event} />
 					))}
@@ -155,7 +151,7 @@ export default function List({ prefetch, allCategories }: Props) {
 				<div className="flex flex-col items-center">{status()}</div>
 			</div>
 			{showFilters && (
-				<div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50 p-8 backdrop-blur-[2px]">
+				<div className="fixed inset-0 z-30 flex flex-col justify-end bg-black bg-opacity-50 backdrop-blur-[2px] md:items-center md:justify-center">
 					<FiltersModal
 						allCategories={allCategories}
 						switchFilter={switchFilter}
