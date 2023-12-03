@@ -1,29 +1,27 @@
 import Button from "@/lib/components/Button";
 import { Category } from "@/lib/schema";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { FilterProps } from "./sharedStore";
+import { useFilterStore } from "./clientStore";
 
 interface Props {
-	categories: Category[];
-	selectedCategories: string[];
-	onClose?: () => void;
+	allCategories: Category[];
+	switchFilter(filters: FilterProps): Promise<void>;
+	onClose?(): void;
 }
 
-export default function FiltersModal(props: Props) {
-	const pathname = usePathname();
-	const router = useRouter();
-
+export default function FiltersModal({ allCategories, switchFilter, onClose }: Props) {
 	const [categories, setCategories] = useState<Category[]>([]);
+	const selected = useFilterStore((state) => state.categories);
 
 	useLayoutEffect(() => {
-		const categories = props.selectedCategories.flatMap((name) => {
-			const category = props.categories.find((c) => c.category_name === name);
+		const categories = selected.flatMap((name) => {
+			const category = allCategories.find((c) => c.category_name === name);
 			return category ? [category] : [];
 		});
 		setCategories(categories);
-	}, [props.selectedCategories, props.categories]);
+	}, [allCategories, selected]);
 
 	function toggleCategory(category: Category) {
 		setCategories((categories) => {
@@ -36,10 +34,13 @@ export default function FiltersModal(props: Props) {
 	}
 
 	function apply() {
-		const params = new URLSearchParams();
-		categories.forEach((category) => params.append("category", category.category_name));
-		router.push(`${pathname}?${params.toString()}`);
-		props.onClose?.();
+		if (categories.length === 0) {
+			switchFilter({ filter: "none", categories: [] });
+		} else {
+			switchFilter({ filter: "custom", categories: categories.map((c) => c.category_name) });
+		}
+
+		onClose?.();
 	}
 
 	function clearAll() {
@@ -51,14 +52,14 @@ export default function FiltersModal(props: Props) {
 			<div className="relative flex justify-center border-b p-4">
 				<h3 className="text-md font-bold">Filters</h3>
 				<div className="absolute inset-0 flex items-center p-4">
-					<Button onClick={() => props.onClose?.()}>Close</Button>
+					<Button onClick={() => onClose?.()}>Close</Button>
 				</div>
 			</div>
 			<div className="p-6">
 				<div className="">
 					<h1 className="mb-4 text-xl font-semibold">Category</h1>
 					<div className="scrollbar grid grid-flow-col grid-rows-2 gap-4 overflow-x-auto py-2 md:grid-rows-1">
-						{props.categories.map((category) => (
+						{allCategories.map((category) => (
 							<button
 								role="checkbox"
 								aria-checked={categories.includes(category)}

@@ -282,25 +282,14 @@ export async function getDeals(page: number): Promise<DealEvents[]> {
 	const events = await db.cached(
 		"all-events",
 		db.sql<DealEvents[]>`
-			SELECT
+			SELECT DISTINCT
 				e.event_id,
 				e.name,
 				e.description,
 				e.start_date,
 				e.end_date,
 				e.organizer_id,
-				e.venue_id,
-				AVG(t.cost) AS average_ticket_cost,
-				(
-					SELECT
-						AVG(t2.cost)
-					FROM
-						ticket t2
-						JOIN event_in_category ec2 ON t2.event_id = ec2.event_id
-					WHERE
-						ec2.category_name = ec.category_name
-					GROUP BY
-						ec2.category_name) AS average_category_cost
+				e.venue_id
 				FROM
 					event e
 					JOIN event_in_category ec ON e.event_id = ec.event_id

@@ -1,7 +1,10 @@
 import { db } from "@/lib/db";
 import List from "./list";
+import { Prefetch } from "./prefetch";
 import { Logger } from "next-axiom";
-import { Event } from "@/lib/schema";
+import { FilterProvider } from "./clientStore";
+import { Filter } from "./sharedStore";
+import { getEvents } from "./actions";
 
 type SearchParams = { [key: string]: string | string[] | undefined };
 
@@ -17,34 +20,26 @@ export default async function Page(props: { searchParams: SearchParams }) {
 			}
 		}
 
-		const filterPopular = params.get("popular") === "true";
-		const filterDeals = params.get("deals") === "true";
-		const filterCategories = params.getAll("category");
+		const filter = params.get("filter") ?? "none";
+		const categories = params.getAll("categories");
+		const events = await getEvents({ filter: filter as Filter, categories }, 0);
+		const allCategories = await db.categories.getAll();
 
-		let events: Event[];
-		if (filterPopular) {
-			console.log("sending popular events");
-			events = await db.events.getPopular(0);
-		} else if (filterDeals) {
-			console.log("sending deals events");
-			events = await db.events.getDeals(0);
-		} else {
-			console.log("sending filtered events");
-			events = await db.events.getFiltered(filterCategories, 0);
-		}
+		logger.debug("Rendering /dashboard/events", {
+			searchParams: params.toString(),
+			filter,
+			categories,
+		});
 
-		const categories = await db.categories.getAll();
-
-		logger.debug("searchParams", { searchParams: params.toString() });
+		const prefetch: Prefetch = {
+			events,
+			filters: { filter: filter as Filter, categories },
+		};
 
 		return (
-			<List
-				events={events}
-				categories={categories}
-				filterCategories={filterCategories}
-				filterPopular={filterPopular}
-				filterDeals={filterDeals}
-			/>
+			<FilterProvider filter={filter as Filter} categories={categories}>
+				<List prefetch={prefetch} allCategories={allCategories} />
+			</FilterProvider>
 		);
 	} finally {
 		logger.flush();

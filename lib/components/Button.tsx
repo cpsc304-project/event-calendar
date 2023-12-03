@@ -14,7 +14,7 @@ function Button(
 			{...props}
 			ref={ref}
 			className={twMerge(
-				"cursor-pointer rounded-md px-6 py-1 font-semibold",
+				"flex cursor-pointer items-center gap-2 rounded-md px-6 py-1 font-semibold",
 				fill ? "bg-gray-800 text-white hover:bg-gray-900" : "border hover:bg-gray-50",
 				className,
 			)}

@@ -1,43 +1,22 @@
 "use client";
 
 import type { Category, Event } from "@/lib/schema";
-import {
-	useState,
-	useTransition,
-	useLayoutEffect,
-	useCallback,
-	useRef,
-	useEffect,
-	useReducer,
-} from "react";
-import { getEvents } from "./actions";
-import { RESULTS_PER_QUERY } from "@/lib/constants";
+import { useState, useLayoutEffect } from "react";
 import Link from "next/link";
-import FiltersModal from "./FiltersModal";
 import Button from "@/lib/components/Button";
-import { temporaryStorage } from "./storage";
+import {
+	AdjustmentsHorizontalIcon,
+	BanknotesIcon,
+	GlobeAltIcon,
+	StarIcon,
+	TagIcon,
+} from "@heroicons/react/24/outline";
+import { twMerge } from "tailwind-merge";
+import { useEvents, useFilterStore } from "./clientStore";
+import { FilterProps } from "./sharedStore";
 import { usePathname, useRouter } from "next/navigation";
-
-function useSessionStorage<T>(key: string, initialValue: T) {
-	const [value, setValue] = useState(() => {
-		const storedValue = temporaryStorage.get(key);
-		if (storedValue) {
-			return JSON.parse(storedValue) as T;
-		} else {
-			return initialValue;
-		}
-	});
-
-	const setAndStoreValue = useCallback(
-		(newValue: T) => {
-			setValue(newValue);
-			temporaryStorage.set(key, JSON.stringify(newValue));
-		},
-		[key],
-	);
-
-	return [value, setAndStoreValue] as const;
-}
+import { Prefetch } from "./prefetch";
+import FiltersModal from "./FiltersModal";
 
 function EventCard({ event }: { event: Event }) {
 	return (
@@ -53,130 +32,121 @@ function EventCard({ event }: { event: Event }) {
 	);
 }
 
-function arrayShallowEqual<T>(a: T[], b: T[]): boolean {
-	if (a.length !== b.length) {
-		return false;
-	}
-
-	return a.every((v, i) => v === b[i]);
+interface Props {
+	prefetch: Prefetch;
+	allCategories: Category[];
 }
 
-export default function List(props: {
-	events: Event[];
-	categories: Category[];
-	filterCategories: string[];
-	filterPopular: boolean;
-	filterDeals: boolean;
-}) {
-	const pathname = usePathname();
+export default function List({ prefetch, allCategories }: Props) {
+	const filter = useFilterStore((state) => state.filter);
+	const setFilters = useFilterStore((state) => state.setFilters);
+	const events = useEvents((state) => state.events);
+	const moreEvents = useEvents((state) => state.more);
+	const applyPrefetch = useEvents((state) => state.applyPrefetch);
+	const getEventsFor = useEvents((state) => state.getEventsFor);
+	const getMoreEvents = useEvents((state) => state.getMoreEvents);
 	const router = useRouter();
-
-	const [events, setEvents] = useSessionStorage("events", props.events);
-	const [page, setPage] = useSessionStorage("page", 0);
-	const [more, setMore] = useSessionStorage("more", props.events.length === RESULTS_PER_QUERY);
-	const [filterPopular, setFilterPopular] = useSessionStorage("popular", props.filterPopular);
-	const [filterDeals, setFilterDeals] = useSessionStorage("deals", props.filterDeals);
-	const [filterCategories, setFilterCategories] = useSessionStorage(
-		"filter",
-		props.filterCategories,
-	);
+	const pathname = usePathname();
 
 	const [showFilters, setShowFilters] = useState(false);
-	const [loading, startTransition] = useTransition();
 
 	useLayoutEffect(() => {
-		if (
-			arrayShallowEqual(filterCategories, props.filterCategories) &&
-			filterPopular === props.filterPopular &&
-			filterDeals === props.filterDeals
-		)
-			return;
-		setEvents(props.events);
-		setPage(0);
-		setMore(props.events.length === RESULTS_PER_QUERY);
-	}, [
-		filterCategories,
-		filterDeals,
-		filterPopular,
-		props.events,
-		props.filterCategories,
-		props.filterDeals,
-		props.filterPopular,
-		setEvents,
-		setMore,
-		setPage,
-	]);
-
-	useEffect(() => {
-		setFilterCategories(props.filterCategories);
-		setFilterPopular(props.filterPopular);
-		setFilterDeals(props.filterDeals);
-	}, [
-		props.filterCategories,
-		props.filterDeals,
-		props.filterPopular,
-		setFilterCategories,
-		setFilterDeals,
-		setFilterPopular,
-	]);
-
-	function getMoreEvents() {
-		if (!more) {
-			return;
-		}
-
-		startTransition(async () => {
-			const newEvents = await getEvents(
-				props.filterCategories,
-				props.filterPopular,
-				props.filterDeals,
-				page + 1,
-			);
-			setEvents([...events, ...newEvents]);
-			setPage(page + 1);
-			setMore(newEvents.length === RESULTS_PER_QUERY);
-		});
-	}
+		applyPrefetch(prefetch);
+		setFilters(prefetch.filters);
+	}, [applyPrefetch, prefetch, setFilters]);
 
 	function status() {
 		switch (true) {
-			case loading:
-				return <p>Loading...</p>;
-			case more:
+			case moreEvents:
 				return <Button onClick={getMoreEvents}>Load more events</Button>;
 			default:
 				return <p>That{"'"}s all folks!</p>;
 		}
 	}
 
-	function getGreatDeals() {
+	function updateURL(filters: FilterProps) {
 		const params = new URLSearchParams();
-		if (!filterDeals) {
-			params.set("deals", "true");
-		}
-		router.push(`${pathname}?${params.toString()}`);
+		params.append("filter", filters.filter);
+		filters.categories.forEach((c) => params.append("categories", c));
+		router.replace(`${pathname}?${params.toString()}`);
+	}
+
+	async function switchFilter(filters: FilterProps) {
+		await getEventsFor(filters);
+		setFilters(filters);
+		updateURL(filters);
+	}
+
+	function getAllEvents() {
+		if (filter === "none") return;
+		switchFilter({ filter: "none", categories: [] });
+	}
+
+	function getGreatDeals() {
+		if (filter === "deals") return;
+		switchFilter({ filter: "deals", categories: [] });
 	}
 
 	function getPopularEvents() {
-		const params = new URLSearchParams();
-		if (!filterPopular) {
-			params.set("popular", "true");
-		}
-		router.push(`${pathname}?${params.toString()}`);
+		if (filter === "popular") return;
+		switchFilter({ filter: "popular", categories: [] });
 	}
 
 	return (
 		<>
 			<div className="space-y-8">
-				<div className="flex items-center justify-end gap-2">
-					<Button fill className="bg-indigo-500" onClick={() => getGreatDeals()}>
-						Great Deals
+				<span className="flex items-center justify-between">
+					<span className="grid auto-cols-fr grid-flow-col justify-items-center gap-2">
+						<Button
+							className={twMerge(
+								"flex-col rounded-none border-0 border-b-2 border-transparent px-0 pb-3 text-gray-500 transition-colors",
+								"hover:border-gray-300 hover:bg-transparent hover:text-black aria-selected:border-gray-800 aria-selected:text-black",
+							)}
+							aria-selected={filter === "none"}
+							onClick={() => getAllEvents()}
+						>
+							<GlobeAltIcon className="h-5 w-5" />
+							<p className="text-xs font-medium">Everything</p>
+						</Button>
+						<Button
+							className={twMerge(
+								"flex-col rounded-none border-0 border-b-2 border-transparent px-0 pb-3 text-gray-500 transition-colors",
+								"hover:border-gray-300 hover:bg-transparent hover:text-black aria-selected:border-gray-800 aria-selected:text-black",
+							)}
+							aria-selected={filter === "deals"}
+							onClick={() => getGreatDeals()}
+						>
+							<BanknotesIcon className="h-5 w-5" />
+							<p className="text-xs font-medium">Deals</p>
+						</Button>
+						<Button
+							className={twMerge(
+								"flex-col rounded-none border-0 border-b-2 border-transparent px-0 pb-3 text-gray-500 transition-colors",
+								"hover:border-gray-300 hover:bg-transparent hover:text-black aria-selected:border-gray-800 aria-selected:text-black",
+							)}
+							aria-selected={filter === "popular"}
+							onClick={() => getPopularEvents()}
+						>
+							<StarIcon className="h-5 w-5" />
+							<p className="text-xs font-medium">Popular</p>
+						</Button>
+						<Button
+							className={twMerge(
+								"flex-col rounded-none border-0 border-b-2 border-transparent px-0 pb-3 text-gray-500 transition-colors",
+								"hover:border-gray-300 hover:bg-transparent hover:text-black aria-selected:border-gray-800 aria-selected:text-black",
+							)}
+							aria-selected={filter === "custom"}
+							onClick={() => setShowFilters(true)}
+						>
+							<TagIcon className="h-5 w-5" />
+							<p className="text-xs font-medium">Custom</p>
+						</Button>
+					</span>
+					<Button onClick={() => setShowFilters(true)} className="p-3">
+						<AdjustmentsHorizontalIcon className="h-5 w-5" />
+						<p className="text-xs font-medium">Filters</p>
 					</Button>
-					<Button fill className="bg-amber-500" onClick={() => getPopularEvents()}>
-						Popular Events
-					</Button>
-					<Button onClick={() => setShowFilters(true)}>Filters</Button>
-				</div>
+				</span>
 				<div className="grid justify-center gap-4 [grid-template-columns:repeat(auto-fit,20rem)]">
 					{events.map((event) => (
 						<EventCard key={event.event_id} event={event} />
@@ -187,8 +157,8 @@ export default function List(props: {
 			{showFilters && (
 				<div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50 p-8 backdrop-blur-[2px]">
 					<FiltersModal
-						categories={props.categories}
-						selectedCategories={props.filterCategories}
+						allCategories={allCategories}
+						switchFilter={switchFilter}
 						onClose={() => setShowFilters(false)}
 					/>
 				</div>
