@@ -210,17 +210,20 @@ export async function setNDiscounts(
 	try {
 		const tickets = await db.sql<DiscountedTicket[]>`
 		INSERT INTO discounted_ticket (ticket_id, event_id, discount, promo_code)
-		SELECT
-				t.ticket_id,
-				t.event_id,
-				${discount} AS discount,
-				${promoCode} AS promo_code
-		FROM
-				ticket t
-		WHERE
-				t.event_id = ${event_id}
-				AND t.account_id IS NULL
-		LIMIT ${numberToDiscount}
+				SELECT
+						t.ticket_id,
+						t.event_id,
+						${discount} AS discount,
+						${promoCode} AS promo_code
+				FROM
+						ticket t
+				WHERE
+						t.event_id = ${event_id}
+						AND t.account_id IS NULL
+				LIMIT ${numberToDiscount}
+		ON CONFLICT(ticket_id, event_id) 
+		DO UPDATE
+			SET discount = ${discount}, promo_code = ${promoCode}
 		RETURNING *;
 		`;
 

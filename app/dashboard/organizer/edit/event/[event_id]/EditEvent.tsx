@@ -8,7 +8,7 @@ import {
 	EventWithVenueAndAreaAndCategories,
 	Ticket,
 } from "@/lib/schema";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { createDiscountSchema, editEventSchema } from "./schema";
 import { twMerge } from "tailwind-merge";
 import { Action } from "@/lib/form";
@@ -93,18 +93,22 @@ export default function EditEvent({
 	categories,
 	action,
 	createDiscountsAction,
-	ticketsAvailable
-
+	ticketsAvailable,
 }: Props) {
 	const router = useRouter();
 	const { Form, Field, submitting, error, invalid, result } = useForm(editEventSchema, action);
 	const createDiscountForm = useForm(createDiscountSchema, createDiscountsAction);
 
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+
 	useEffect(() => {
 		if (result) {
 			router.push("/dashboard/organizer");
 		}
-	}, [result, router]);
+		if (createDiscountForm.result) {
+			setShowSuccessModal(true);
+		}
+	}, [result, router, createDiscountForm.result, setShowSuccessModal]);
 
 	return (
 		<div className="space-y-4">
@@ -150,8 +154,8 @@ export default function EditEvent({
 							</Field>
 							<Field for="ticket_cost">
 								{(args) => (
-									<NumberField args={args} step={0.01}>
-										Ticket price
+									<NumberField args={args} step={0.01} defaultValue={0}>
+										Additional Ticket price
 									</NumberField>
 								)}
 							</Field>
@@ -199,10 +203,8 @@ export default function EditEvent({
 					</section>
 				</Form>
 			</div>
-
 			<hr className="my-4" />
-			<div className="mb-4 mt-3 md:mt-5 text-3xl">Generate discounted tickets</div>
-
+			<div className="mb-4 mt-3 text-3xl md:mt-5">Generate discounted tickets</div>
 			<div className="rounded border">
 				<div className=" bold mt-3 px-4 text-base md:px-8">
 					You have {ticketsAvailable} tickets out of {event.ticket_count} available to add discounts
@@ -238,6 +240,20 @@ export default function EditEvent({
 					</section>
 				</createDiscountForm.Form>
 			</div>
+			{showSuccessModal && (
+			<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+				<div className="rounded-lg bg-white p-8">
+					<p className="text-2xl font-semibold">Success!</p>
+					<p className="text-lg">{createDiscountForm.result?.length} discounts have been generated</p>
+					<button
+						className="mt-4 rounded bg-indigo-500 px-4 py-2 font-bold text-white hover:bg-indigo-700"
+						onClick={() => setShowSuccessModal(false)}
+					>
+						OK
+					</button>
+				</div>
+			</div>
+			)}
 		</div>
 	);
 }
