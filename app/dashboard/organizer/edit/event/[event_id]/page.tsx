@@ -48,7 +48,6 @@ export default async function Page(props: Props) {
 		"use server";
 		const capturedEvent = event;
 		await db.events.remove(capturedEvent.event_id);
-		revalidatePath(`/dashboard/events`);
 		revalidateTag("all-events");
 		redirect("/dashboard/organizer/deleted-success");
 	};
@@ -105,7 +104,8 @@ export default async function Page(props: Props) {
 					data.discount,
 					data.promo_code,
 				);
-				revalidatePath(`/dashboard/events/${capturedEvent.event_id}/edit`);
+				revalidateTag("all-events");
+				revalidatePath(`/dashboard/organizer/edit/event/${capturedEvent.event_id}`);
 				return discountedTickets;
 			} finally {
 				logger.flush();
