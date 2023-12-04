@@ -35,9 +35,9 @@ export default function Navigation({ isAuthenticated }: Props) {
 				<NavLink current={selected === "awards"} href="/dashboard/awards">
 					Awards
 				</NavLink>
-				<NavLink current={selected === "photos"} href="/dashboard/photos">
+				{/* <NavLink current={selected === "photos"} href="/dashboard/photos">
 					Photos
-				</NavLink>
+				</NavLink> */}
 				{isAuthenticated && (
 					<>
 						<NavLink current={selected === "organizer"} href="/dashboard/organizer">
