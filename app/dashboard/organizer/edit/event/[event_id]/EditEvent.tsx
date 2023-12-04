@@ -183,7 +183,7 @@ export default function EditEvent({
 								className={`h-4 w-4 rotate-0 transition-transform ${showTicketAdd && "rotate-180"}`}
 							/>
 						</Button>
-						{showTicketAdd && (
+						{showTicketAdd ? (
 							<span className="grid gap-4 md:grid-cols-3">
 								<Field for="new_ticket_count">
 									{(args) => (
@@ -200,6 +200,15 @@ export default function EditEvent({
 									)}
 								</Field>
 							</span>
+						) : (
+							<>
+								<Field for="new_ticket_count">
+									{(args) => <input {...args.props} type="hidden" value={0} />}
+								</Field>
+								<Field for="new_ticket_cost">
+									{(args) => <input {...args.props} type="hidden" value={0} />}
+								</Field>
+							</>
 						)}
 					</section>
 					<section className="px-4 py-8 md:px-8">
