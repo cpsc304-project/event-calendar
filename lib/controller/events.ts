@@ -36,6 +36,8 @@ export async function getFiltered(
 			LEFT JOIN event_in_category AS ec ON e.event_id = ec.event_id
 					AND (array_length(${filterCategories}::varchar[], 1) IS NULL OR ec.category_name = ANY (${filterCategories}))
 			INNER JOIN category as c ON ec.category_name = c.category_name
+			ORDER BY
+				e.event_id DESC
 			LIMIT ${limit} OFFSET ${offset}
 		`,
 	);
@@ -284,7 +286,7 @@ export async function getByEventId(event_id: number): Promise<EventGetByEventId>
 				e.event_id = ${event_id}
 			LIMIT 1
 		`;
-		logger.debug("events.getByEventId", { event });
+		logger.debug("events.getByEventId", { event_id: event.event_id });
 		return event;
 	} finally {
 		logger.flush();
@@ -327,6 +329,8 @@ export async function getDeals(page: number): Promise<DealEvents[]> {
 						ec2.category_name = ec.category_name
 					GROUP BY
 						ec2.category_name)
+				ORDER BY
+					e.event_id DESC
 				LIMIT ${limit} OFFSET ${offset}
 		`,
 	);
@@ -360,6 +364,8 @@ export async function getPopular(page: number): Promise<Event[]> {
 				e.name
 			HAVING
 				COUNT(t.ticket_id) > ${magicNumber}
+			ORDER BY
+				e.event_id DESC
 			LIMIT ${limit} OFFSET ${offset}
 		`,
 	);

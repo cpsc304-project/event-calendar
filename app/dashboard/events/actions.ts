@@ -8,7 +8,7 @@ import { FilterProps } from "./sharedStore";
 export async function getEvents(filters: FilterProps, page: number) {
 	const logger = new Logger();
 	try {
-		logger.debug("Fetching events.", { filters });
+		logger.debug("Fetching events.", { filters, page });
 		let events: Event[];
 		switch (filters.filter) {
 			case "none":

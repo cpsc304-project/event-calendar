@@ -95,9 +95,9 @@ export const useEvents = create<EventState>()((set, get) => ({
 	},
 
 	async getEventsFor(filters) {
-		console.log("Starting server action.");
+		console.log("Starting server action in getEventsFor.", get());
 		const events = await getEvents(filters, 0);
-		console.log("Server action completed.", { result: events });
+		console.log("Server action completed in getEventsFor.", { result: events });
 
 		set({
 			events,
@@ -109,9 +109,9 @@ export const useEvents = create<EventState>()((set, get) => ({
 	},
 
 	async getMoreEvents() {
-		console.log("Starting server action.");
+		console.log("Starting server action in getMoreEvents.", get());
 		const events = await getEvents(get().filters, get().nextPage);
-		console.log("Server action completed.", { result: events });
+		console.log("Server action completed in getMoreEvents.", { result: events });
 
 		set({
 			events: [...get().events, ...events],
