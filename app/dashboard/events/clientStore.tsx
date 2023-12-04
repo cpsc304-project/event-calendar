@@ -8,7 +8,7 @@ import type { Event } from "@/lib/schema";
 import { getEvents } from "./actions";
 import { Prefetch } from "./prefetch";
 
-function arrayShallowEqual<T>(a: T[], b: T[]): boolean {
+function arrayShallowEqual<T>(a: readonly T[], b: readonly T[]): boolean {
 	if (a.length !== b.length) {
 		return false;
 	}
@@ -52,10 +52,11 @@ export function useFilterStore<U>(selector?: (state: FilterState) => U): FilterS
 }
 
 export interface EventProps {
-	events: Event[];
-	filters: FilterProps;
-	nextPage: number;
-	more: boolean;
+	readonly events: readonly Event[];
+	readonly filters: FilterProps;
+	readonly nextPage: number;
+	readonly more: boolean;
+	readonly ready: boolean;
 }
 
 export interface EventState extends EventProps {
@@ -74,9 +75,11 @@ export const useEvents = create<EventState>()((set, get) => ({
 	},
 	nextPage: 0,
 	more: true,
+	ready: false,
 
 	applyPrefetch(prefetch) {
 		if (
+			get().ready &&
 			filterPropsAreEqual(get().filters, prefetch.filters) &&
 			get().events.length > prefetch.events.length
 		)
@@ -84,34 +87,36 @@ export const useEvents = create<EventState>()((set, get) => ({
 
 		set({
 			events: prefetch.events,
-			filters: structuredClone(prefetch.filters),
+			filters: prefetch.filters,
 			nextPage: 1,
 			more: prefetch.events.length === RESULTS_PER_QUERY,
+			ready: true,
 		});
 	},
 
 	async getEventsFor(filters) {
 		console.log("Starting server action.");
-		const newEvents = await getEvents(filters, 0);
-		console.log("Server action completed.", { result: newEvents });
+		const events = await getEvents(filters, 0);
+		console.log("Server action completed.", { result: events });
 
 		set({
-			events: newEvents,
-			filters: structuredClone(filters),
+			events,
+			filters,
 			nextPage: 1,
-			more: newEvents.length === RESULTS_PER_QUERY,
+			more: events.length === RESULTS_PER_QUERY,
+			ready: true,
 		});
 	},
 
 	async getMoreEvents() {
 		console.log("Starting server action.");
-		const newEvents = await getEvents(get().filters, get().nextPage);
-		console.log("Server action completed.", { result: newEvents });
+		const events = await getEvents(get().filters, get().nextPage);
+		console.log("Server action completed.", { result: events });
 
 		set({
-			events: [...get().events, ...newEvents],
+			events: [...get().events, ...events],
 			nextPage: get().nextPage + 1,
-			more: newEvents.length === RESULTS_PER_QUERY,
+			more: events.length === RESULTS_PER_QUERY,
 		});
 	},
 }));

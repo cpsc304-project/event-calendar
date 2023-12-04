@@ -4,13 +4,7 @@ import type { Category, Event } from "@/lib/schema";
 import { useState, useLayoutEffect } from "react";
 import Link from "next/link";
 import Button from "@/lib/components/Button";
-import {
-	AdjustmentsHorizontalIcon,
-	BanknotesIcon,
-	GlobeAltIcon,
-	StarIcon,
-	TagIcon,
-} from "@heroicons/react/24/outline";
+import { BanknotesIcon, GlobeAltIcon, StarIcon, TagIcon } from "@heroicons/react/24/outline";
 import { twMerge } from "tailwind-merge";
 import { useEvents, useFilterStore } from "./clientStore";
 import { FilterProps } from "./sharedStore";
@@ -42,6 +36,7 @@ export default function List({ prefetch, allCategories }: Props) {
 	const setFilters = useFilterStore((state) => state.setFilters);
 	const events = useEvents((state) => state.events);
 	const moreEvents = useEvents((state) => state.more);
+	const ready = useEvents((state) => state.ready);
 	const applyPrefetch = useEvents((state) => state.applyPrefetch);
 	const getEventsFor = useEvents((state) => state.getEventsFor);
 	const getMoreEvents = useEvents((state) => state.getMoreEvents);
@@ -144,7 +139,7 @@ export default function List({ prefetch, allCategories }: Props) {
 					</span>
 				</span>
 				<div className="grid justify-center gap-6 [grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))]">
-					{events.map((event) => (
+					{(ready ? events : prefetch.events).map((event) => (
 						<EventCard key={event.event_id} event={event} />
 					))}
 				</div>

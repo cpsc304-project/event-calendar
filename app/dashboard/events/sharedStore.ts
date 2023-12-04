@@ -9,8 +9,8 @@ export type CustomFilter = "custom";
 export type Filter = NoFilter | PopularFilter | DealsFilter | CustomFilter;
 
 export interface FilterProps {
-	filter: Filter;
-	categories: string[];
+	readonly filter: Filter;
+	readonly categories: readonly string[];
 }
 
 export interface FilterState extends FilterProps {
@@ -27,8 +27,8 @@ export function createFilterStore(initialProps?: Partial<FilterProps>) {
 	return createStore<FilterState>()((set, get) => ({
 		...defaultProps,
 		...initialProps,
-		setFilters(filters) {
-			set(structuredClone(filters));
+		setFilters({ filter, categories }) {
+			set({ filter, categories });
 		},
 	}));
 }
