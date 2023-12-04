@@ -1,27 +1,25 @@
-DROP TABLE review;
+DROP TABLE IF EXISTS review;
 
-DROP TABLE discounted_ticket;
+DROP TABLE IF EXISTS discounted_ticket;
 
-DROP TABLE ticket;
+DROP TABLE IF EXISTS ticket;
 
-DROP TABLE event_in_category;
+DROP TABLE IF EXISTS event_in_category;
 
-DROP TABLE category;
+DROP TABLE IF EXISTS category;
 
-DROP TABLE event;
+DROP TABLE IF EXISTS event;
 
-DROP TABLE venue;
+DROP TABLE IF EXISTS venue;
 
-DROP TABLE area;
+DROP TABLE IF EXISTS area;
 
-DROP TABLE venue_type;
+DROP TABLE IF EXISTS venue_type;
 
-DROP TABLE file;
+DROP TABLE IF EXISTS file;
 
-DROP TABLE guest;
+DROP TABLE IF EXISTS guest;
 
-DROP TABLE organizer;
+DROP TABLE IF EXISTS organizer;
 
-DROP TABLE account;
-
-DROP TABLE message;
+DROP TABLE IF EXISTS account;

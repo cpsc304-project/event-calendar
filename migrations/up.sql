@@ -1,11 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE message (
-    message_id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL
-);
-
 CREATE TABLE account (
     account_id SERIAL PRIMARY KEY,
     kinde_id CHAR(35) UNIQUE NOT NULL
@@ -53,7 +47,7 @@ CREATE TABLE venue (
     venue_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
-    seats INTEGER,
+    seats INTEGER NOT NULL,
     venue_type_name VARCHAR(100) NOT NULL
         REFERENCES venue_type(venue_type_name)
         ON UPDATE CASCADE
@@ -81,7 +75,11 @@ CREATE TABLE event (
     venue_id INTEGER NOT NULL
         REFERENCES venue(venue_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    file_id INTEGER
+        REFERENCES file(file_id)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
 );
 
 CREATE TABLE category (
