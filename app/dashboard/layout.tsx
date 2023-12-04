@@ -43,7 +43,7 @@ export default async function Layout(props: PropsWithChildren) {
 						{loggedIn ? <LoggedInToolbar /> : <LoggedOutToolbar />}
 					</span>
 				</div>
-				<Navigation />
+				<Navigation isAuthenticated={loggedIn} />
 			</header>
 			<main className="p-6 sm:p-12">{props.children}</main>
 		</>
