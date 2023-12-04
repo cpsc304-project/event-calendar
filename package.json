@@ -15,7 +15,6 @@
 		"@mapbox/search-js-web": "1.0.0-beta.18",
 		"@mui/base": "5.0.0-beta.25",
 		"@neondatabase/serverless": "^0.6.0",
-		"@stripe/stripe-js": "^2.2.0",
 		"@uploadthing/react": "^6.0.2",
 		"@vercel/analytics": "^1.1.1",
 		"dayjs": "^1.11.10",
@@ -25,11 +24,8 @@
 		"react-dom": "^18.2.0",
 		"server-only": "^0.0.1",
 		"sharp": "^0.33.0",
-		"stripe": "^14.7.0",
 		"tailwind-merge": "^2.0.0",
 		"uploadthing": "^6.0.3",
-		"zod": "^3.22.4",
-		"zod-form-data": "^2.0.2",
 		"zustand": "^4.4.7"
 	},
 	"devDependencies": {

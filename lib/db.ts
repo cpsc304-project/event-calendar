@@ -1,5 +1,14 @@
 import { neon, NeonQueryPromise } from "@neondatabase/serverless";
-import { messages, files, accounts, events, categories, tickets, venues, reviews, awards } from "./controller";
+import {
+	files,
+	accounts,
+	events,
+	categories,
+	tickets,
+	venues,
+	reviews,
+	awards,
+} from "./controller";
 import "server-only";
 
 if (!process.env.DATABASE_URL) {
@@ -36,7 +45,6 @@ const cached = async <ArrayMode extends boolean, FullResults extends boolean, T>
 export const db = {
 	sql,
 	cached,
-	messages,
 	files,
 	accounts,
 	events,
@@ -44,7 +52,5 @@ export const db = {
 	tickets,
 	venues,
 	reviews,
-	awards
+	awards,
 };
-
-

@@ -1,5 +1,3 @@
-import { zfd } from "zod-form-data";
-
 export interface Account {
 	account_id: number;
 	kinde_id: string;
@@ -107,21 +105,6 @@ export interface File {
 	account_id: number;
 	url: string;
 }
-
-export interface Message {
-	message_id: number;
-	title: string;
-	content: string;
-}
-
-export interface PotentialMessage extends Message {
-	optimistic: boolean;
-}
-
-export const MessageForm = zfd.formData({
-	title: zfd.text(),
-	content: zfd.text(),
-});
 
 export interface EventGetByOrganizerId {
 	event_id: number;

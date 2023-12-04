@@ -1,6 +1,6 @@
 "use client";
 import { Account, EventGetByEventId, Ticket } from "@/lib/schema";
-import { startTransition, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { buyTicketForAccountId } from "./actions";
 import { redirect } from "next/navigation";
 
@@ -19,8 +19,7 @@ export function GetTicketPage(props: {
 		console.log(ticketPriceCents);
 		if (props.isDiscounted) {
 			ticketPriceCents =
-				(parseInt(props.ticket_info?.cost) * (100 - parseInt(props.ticket_info?.discount!))) /
-				100;
+				(parseInt(props.ticket_info?.cost) * (100 - parseInt(props.ticket_info?.discount!))) / 100;
 		}
 	}
 
@@ -97,7 +96,7 @@ export function GetTicketPage(props: {
 										$ {parseInt(props.ticket_info?.cost) / 100} CAD
 									</div>
 									<div className="text-indigo-600">
-										{(Math.round (ticketPriceCents)/100).toFixed(2)} CAD
+										{(Math.round(ticketPriceCents) / 100).toFixed(2)} CAD
 									</div>
 								</div>
 							</div>

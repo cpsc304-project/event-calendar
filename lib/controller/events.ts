@@ -13,7 +13,10 @@ import {
 } from "../schema";
 import { insertNTickets } from "./tickets";
 
-export async function getFiltered(filterCategories: string[], page: number): Promise<Event[]> {
+export async function getFiltered(
+	filterCategories: readonly string[],
+	page: number,
+): Promise<Event[]> {
 	const limit = RESULTS_PER_QUERY;
 	const offset = page * limit;
 

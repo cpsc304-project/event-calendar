@@ -1,11 +1,8 @@
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { loadStripe } from "@stripe/stripe-js";
-import { useEffect } from "react";
 import { GetTicketPage } from "./get-ticket-page";
-import { EventGetByEventId, Ticket } from "@/lib/schema";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { LoginLink, LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import { LoginLink } from "@kinde-oss/kinde-auth-nextjs/components";
 
 export default async function Page(props: { params: { event_id: string } }) {
 	// const mockEvent: EventGetByEventId = {
@@ -92,9 +89,24 @@ export default async function Page(props: { params: { event_id: string } }) {
 	}
 
 	if (discountedTicket) {
-		return <GetTicketPage event={event} ticket_info={discountedTicket} isDiscounted={true} user={user} numberAvailable={availableTickets}/>;
+		return (
+			<GetTicketPage
+				event={event}
+				ticket_info={discountedTicket}
+				isDiscounted={true}
+				user={user}
+				numberAvailable={availableTickets}
+			/>
+		);
 	} else {
-		return <GetTicketPage event={event} ticket_info={ticket} isDiscounted={false} user={user} numberAvailable={availableTickets}/>;
+		return (
+			<GetTicketPage
+				event={event}
+				ticket_info={ticket}
+				isDiscounted={false}
+				user={user}
+				numberAvailable={availableTickets}
+			/>
+		);
 	}
-
 }

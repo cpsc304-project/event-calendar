@@ -1,12 +1,9 @@
 "use client";
 
 import { EventGetByEventId } from "@/lib/schema";
-import { loadStripe } from "@stripe/stripe-js";
 import { useEffect } from "react";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-
-export default function GetTicketPage(props: { event: EventGetByEventId, ticket_price: number}) {
+export default function GetTicketPage(props: { event: EventGetByEventId; ticket_price: number }) {
 	useEffect(() => {
 		// Check to see if this is a redirect back from Checkout
 		const query = new URLSearchParams(window.location.search);
@@ -28,10 +25,6 @@ export default function GetTicketPage(props: { event: EventGetByEventId, ticket_
 				<input name="event_name" value={props.event.event_name} type="hidden"></input>
 				<input name="ticket_price" value={props.ticket_price} type="hidden"></input>
 				<input name="event_id" value={props.event.event_id} type="hidden"></input>
-
-				
-
-
 			</section>
 			<style jsx>
 				{`
