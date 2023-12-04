@@ -34,12 +34,8 @@ const baseEditEventSchema = formData({
 	event_id: [string(), toNumber()],
 	name: [string(), minLength(1, () => "Your event must have a name.")],
 	description: [string(), minLength(1, () => "Your event must have a description.")],
-	ticket_count: [
-		string(),
-		toNumber(),
-		minValue(1, () => "Your event must have at least 1 ticket."),
-	],
-	ticket_cost: [
+	new_ticket_count: [string(), toNumber(), minValue(0)],
+	new_ticket_cost: [
 		string(),
 		toNumber(),
 		minValue(0, () => "Your tickets can't have a negative cost."),

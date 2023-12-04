@@ -115,20 +115,31 @@ export async function update({
 	event_id,
 	name,
 	description,
-	ticket_count,
-	ticket_cost,
+	new_ticket_count,
+	new_ticket_cost,
 	start_date,
 	end_date,
 	category_names,
 }: Partial<
 	Omit<Event, "venue_id" | "organizer_id"> & {
-		ticket_count: number;
-		ticket_cost: number;
 		category_names: string[];
 	}
-> &
-	Pick<Event, "event_id">): Promise<Event> {
-	const [existingEvent] = await db.sql<[(Event & { ticket_count: number })?]>`
+> & { new_ticket_count: number; new_ticket_cost: number } & Pick<
+		Event,
+		"event_id"
+	>): Promise<Event> {
+	const logger = new Logger();
+	try {
+		logger.debug("events.update", {
+			event_id,
+			new_ticket_count,
+			new_ticket_cost,
+			category_names,
+			start_date,
+			end_date,
+		});
+
+		const [existingEvent] = await db.sql<[(Event & { ticket_count: number })?]>`
 		SELECT
 			event_id,
 			name,
@@ -144,11 +155,11 @@ export async function update({
 			e.event_id = ${event_id}
 	`;
 
-	if (!existingEvent) {
-		throw new Error("No event with that id exists");
-	}
+		if (!existingEvent) {
+			throw new Error("No event with that id exists");
+		}
 
-	const [updatedEvent] = await db.sql<[Event?]>`
+		const [updatedEvent] = await db.sql<[Event?]>`
 		UPDATE event
 		SET
 			name = ${name ?? existingEvent.name},
@@ -167,30 +178,31 @@ export async function update({
 			venue_id
 	`;
 
-	if (!updatedEvent) {
-		throw new Error("Was unable to update event");
-	}
+		if (!updatedEvent) {
+			throw new Error("Was unable to update event");
+		}
 
-	if (ticket_count !== undefined && ticket_cost !== undefined) {
-		const costInCents =
-			parseInt(ticket_cost.toString().split(".")[0], 10) * 100 +
-			parseInt(ticket_cost.toString().split(".")[1], 10);
+		if (new_ticket_count > 0) {
+			const costInCents =
+				parseInt(new_ticket_cost.toString().split(".")[0] ?? "0", 10) * 100 +
+				parseInt(new_ticket_cost.toString().split(".")[1] ?? "0", 10);
 
-		await insertNTickets(
-			updatedEvent.event_id,
-			costInCents,
-			ticket_count - existingEvent.ticket_count,
-		);
-	}
+			logger.debug("events.update", {
+				costInCents,
+				inserting: new_ticket_count,
+			});
 
-	if (category_names !== undefined) {
-		await db.sql`
+			await insertNTickets(updatedEvent.event_id, costInCents, new_ticket_count);
+		}
+
+		if (category_names !== undefined) {
+			await db.sql`
 			DELETE FROM event_in_category
 			WHERE event_id = ${event_id}
 		`;
 
-		for (const category_name of category_names) {
-			const [event_in_category] = await db.sql<[EventInCategory?]>`
+			for (const category_name of category_names) {
+				const [event_in_category] = await db.sql<[EventInCategory?]>`
 				INSERT INTO event_in_category
 					(event_id, category_name)
 				VALUES
@@ -199,13 +211,16 @@ export async function update({
 					event_id, category_name
 			`;
 
-			if (!event_in_category) {
-				throw new Error("Failed to insert a category: no category returned.");
+				if (!event_in_category) {
+					throw new Error("Failed to insert a category: no category returned.");
+				}
 			}
 		}
-	}
 
-	return updatedEvent;
+		return updatedEvent;
+	} finally {
+		logger.flush();
+	}
 }
 
 export async function getByOrganizerId(organizer_id: number): Promise<Event[]> {
@@ -443,7 +458,7 @@ export async function getWithVenueAndAreaAndCategories(
 			});
 		}
 
-		logger.debug("events.getWithVenueAndAreaAndCategories", { event });
+		logger.debug("events.getWithVenueAndAreaAndCategories", { event_id });
 
 		return event;
 	} finally {
