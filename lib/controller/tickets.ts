@@ -34,7 +34,7 @@ export async function insertNTickets(
 			throw new Error("Failed to insert tickets");
 		}
 
-		logger.debug("Inserted Organizer", { tickets });
+		logger.debug("tickets.insertNTickets", { newTicketCount: tickets.length });
 
 		return tickets;
 	} finally {
@@ -206,7 +206,7 @@ export async function setNDiscounts(
 	promoCode: string,
 ) {
 	const logger = new Logger();
-	logger.info("Discounting Tickets")
+	logger.info("Discounting Tickets");
 	try {
 		const tickets = await db.sql<DiscountedTicket[]>`
 		INSERT INTO discounted_ticket (ticket_id, event_id, discount, promo_code)

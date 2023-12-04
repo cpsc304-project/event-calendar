@@ -52,22 +52,13 @@ export default async function Page(props: Props) {
 		return await formAction(editEventSchema, formData, async (data) => {
 			const logger = new Logger();
 			try {
-				if (data.ticket_count < capturedEvent.ticket_count) {
-					throw new FormError("You cannot reduce the number of attendees", "ticket_count");
-				}
-
-				logger.debug("Updating event", {
-					old_ticket_count: capturedEvent.ticket_count,
-					new_ticket_count: data.ticket_count,
-				});
-
 				const updatedEvent = await db.events.update({
 					event_id: capturedEvent.event_id,
 					name: data.name !== capturedEvent.name ? data.name : undefined,
 					description:
 						data.description !== capturedEvent.description ? data.description : undefined,
-					ticket_count:
-						data.ticket_count !== capturedEvent.ticket_count ? data.ticket_count : undefined,
+					new_ticket_count: data.new_ticket_count,
+					new_ticket_cost: data.new_ticket_cost,
 					category_names: !arrayShallowEqual(
 						data.category_names,
 						capturedEvent.categories.map((c) => c.category_name),
@@ -105,7 +96,7 @@ export default async function Page(props: Props) {
 					data.discount,
 					data.promo_code,
 				);
-				revalidatePath(`/dashboard/events/${capturedEvent.event_id}/edit`)
+				revalidatePath(`/dashboard/events/${capturedEvent.event_id}/edit`);
 				return discountedTickets;
 			} finally {
 				logger.flush();

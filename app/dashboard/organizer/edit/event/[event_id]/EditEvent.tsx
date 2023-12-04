@@ -16,11 +16,12 @@ import TextField from "@/lib/components/form/TextField";
 import TextBox from "@/lib/components/form/TextBox";
 import NumberField from "@/lib/components/form/NumberField";
 import Submit from "@/lib/components/form/Submit";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import DateField from "@/lib/components/form/DateField";
 import Status from "@/lib/components/form/Status";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import Button from "@/lib/components/Button";
 
 const toFormDateString = (date: Date) => dayjs(date).format("YYYY-MM-DD");
 
@@ -99,6 +100,7 @@ export default function EditEvent({
 	const { Form, Field, submitting, error, invalid, result } = useForm(editEventSchema, action);
 	const createDiscountForm = useForm(createDiscountSchema, createDiscountsAction);
 
+	const [showTicketAdd, setShowTicketAdd] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 
 	useEffect(() => {
@@ -144,22 +146,6 @@ export default function EditEvent({
 								</TextBox>
 							)}
 						</Field>
-						<span className="grid gap-4 md:grid-cols-3">
-							<Field for="ticket_count">
-								{(args) => (
-									<NumberField args={args} defaultValue={event.ticket_count.toString()}>
-										Number of tickets
-									</NumberField>
-								)}
-							</Field>
-							<Field for="ticket_cost">
-								{(args) => (
-									<NumberField args={args} step={0.01} defaultValue={0}>
-										Additional Ticket price
-									</NumberField>
-								)}
-							</Field>
-						</span>
 						<Field for="start_date">
 							{(args) => (
 								<DateField
@@ -182,6 +168,33 @@ export default function EditEvent({
 								</DateField>
 							)}
 						</Field>
+					</section>
+					<section className="space-y-4 px-4 py-8 md:px-8">
+						<h4 className="block font-semibold">Ticket count: {event.ticket_count}</h4>
+						<Button className="flex items-center gap-4" onClick={() => setShowTicketAdd((v) => !v)}>
+							<p>Issue more tickets</p>
+							<ChevronUpIcon
+								className={`h-4 w-4 rotate-0 transition-transform ${showTicketAdd && "rotate-180"}`}
+							/>
+						</Button>
+						{showTicketAdd && (
+							<span className="grid gap-4 md:grid-cols-3">
+								<Field for="new_ticket_count">
+									{(args) => (
+										<NumberField args={args} defaultValue={0}>
+											Number of tickets
+										</NumberField>
+									)}
+								</Field>
+								<Field for="new_ticket_cost">
+									{(args) => (
+										<NumberField args={args} step={0.01} defaultValue={0}>
+											Ticket price
+										</NumberField>
+									)}
+								</Field>
+							</span>
+						)}
 					</section>
 					<section className="px-4 py-8 md:px-8">
 						<Field for="category_names">
@@ -241,18 +254,20 @@ export default function EditEvent({
 				</createDiscountForm.Form>
 			</div>
 			{showSuccessModal && (
-			<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-				<div className="rounded-lg bg-white p-8">
-					<p className="text-2xl font-semibold">Success!</p>
-					<p className="text-lg">{createDiscountForm.result?.length} discounts have been generated</p>
-					<button
-						className="mt-4 rounded bg-indigo-500 px-4 py-2 font-bold text-white hover:bg-indigo-700"
-						onClick={() => setShowSuccessModal(false)}
-					>
-						OK
-					</button>
+				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+					<div className="rounded-lg bg-white p-8">
+						<p className="text-2xl font-semibold">Success!</p>
+						<p className="text-lg">
+							{createDiscountForm.result?.length} discounts have been generated
+						</p>
+						<button
+							className="mt-4 rounded bg-indigo-500 px-4 py-2 font-bold text-white hover:bg-indigo-700"
+							onClick={() => setShowSuccessModal(false)}
+						>
+							OK
+						</button>
+					</div>
 				</div>
-			</div>
 			)}
 		</div>
 	);
