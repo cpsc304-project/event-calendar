@@ -44,6 +44,14 @@ export default async function Page(props: Props) {
 		notFound();
 	}
 
+	const deleteEvent = async () => {
+		"use server";
+		const capturedEvent = event;
+		await db.events.remove(capturedEvent.event_id);
+		revalidatePath(`/dashboard/events`);
+		redirect("/dashboard/organizer/deleted-success");
+	};
+
 	const categories = await db.categories.getAll();
 
 	const action: Action<Event> = async (state, formData) => {
@@ -105,7 +113,7 @@ export default async function Page(props: Props) {
 					data.discount,
 					data.promo_code,
 				);
-				revalidatePath(`/dashboard/events/${capturedEvent.event_id}/edit`)
+				revalidatePath(`/dashboard/events/${capturedEvent.event_id}/edit`);
 				return discountedTickets;
 			} finally {
 				logger.flush();
@@ -120,6 +128,7 @@ export default async function Page(props: Props) {
 			action={action}
 			createDiscountsAction={createDiscountsAction}
 			ticketsAvailable={ticketsAvailable}
+			deleteEventAction={deleteEvent}
 		/>
 	);
 }

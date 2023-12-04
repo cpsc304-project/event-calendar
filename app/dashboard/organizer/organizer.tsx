@@ -20,10 +20,8 @@ export default function Organizer(props: {
 	// MIGHT NOT UPDATE NAME IMMEDIATELY AFTER INSERTING CHECK DURING BUILD
 	function handleNameChange() {
 		if (!name) return;
-		startTransition(async () => {
-			await insertOrganizer(props.user.account_id, name);
-			setName(name);
-		});
+		insertOrganizer(props.user.account_id, name);
+		setName(name);
 	}
 
 	return (

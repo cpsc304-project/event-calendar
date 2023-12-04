@@ -20,7 +20,7 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import DateField from "@/lib/components/form/DateField";
 import Status from "@/lib/components/form/Status";
 import dayjs from "dayjs";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 const toFormDateString = (date: Date) => dayjs(date).format("YYYY-MM-DD");
 
@@ -86,6 +86,7 @@ interface Props {
 	action: Action<Event>;
 	createDiscountsAction: Action<DiscountedTicket[]>;
 	ticketsAvailable: number;
+	deleteEventAction: () => void;
 }
 
 export default function EditEvent({
@@ -94,6 +95,7 @@ export default function EditEvent({
 	action,
 	createDiscountsAction,
 	ticketsAvailable,
+	deleteEventAction,
 }: Props) {
 	const router = useRouter();
 	const { Form, Field, submitting, error, invalid, result } = useForm(editEventSchema, action);
@@ -109,6 +111,10 @@ export default function EditEvent({
 			setShowSuccessModal(true);
 		}
 	}, [result, router, createDiscountForm.result, setShowSuccessModal]);
+
+	function deleteEvent() {
+		deleteEventAction();
+	}
 
 	return (
 		<div className="space-y-4">
@@ -240,19 +246,34 @@ export default function EditEvent({
 					</section>
 				</createDiscountForm.Form>
 			</div>
-			{showSuccessModal && (
-			<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-				<div className="rounded-lg bg-white p-8">
-					<p className="text-2xl font-semibold">Success!</p>
-					<p className="text-lg">{createDiscountForm.result?.length} discounts have been generated</p>
-					<button
-						className="mt-4 rounded bg-indigo-500 px-4 py-2 font-bold text-white hover:bg-indigo-700"
-						onClick={() => setShowSuccessModal(false)}
-					>
-						OK
-					</button>
+			<hr className="my-4" />
+			<div className="mb-4 mt-3 text-3xl md:mt-5">Delete Event</div>
+			<div className="rounded border">
+				<div className=" bold mt-3 px-4 text-base md:px-8">
+					Warning, this action is irreversible
 				</div>
+				<button
+					className="hover:bg-rend-700 mx-4 my-4 rounded bg-red-400 px-4 py-2 font-bold text-white hover:bg-red-600 md:mx-8"
+					onClick={deleteEvent}
+				>
+					Delete Event
+				</button>
 			</div>
+			{showSuccessModal && (
+				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+					<div className="rounded-lg bg-white p-8">
+						<p className="text-2xl font-semibold">Success!</p>
+						<p className="text-lg">
+							{createDiscountForm.result?.length} discounts have been generated
+						</p>
+						<button
+							className="mt-4 rounded bg-indigo-500 px-4 py-2 font-bold text-white hover:bg-indigo-700"
+							onClick={() => setShowSuccessModal(false)}
+						>
+							OK
+						</button>
+					</div>
+				</div>
 			)}
 		</div>
 	);

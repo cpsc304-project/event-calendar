@@ -32,6 +32,8 @@ export default async function Page() {
 				logger.debug("Creating event", { event: newEvent });
 				const event = await db.events.createWithCategories({ ...newEvent, organizer_id });
 				revalidateTag("all-events");
+				logger.debug("Event Created", event);
+
 				return event;
 			} finally {
 				logger.flush();
